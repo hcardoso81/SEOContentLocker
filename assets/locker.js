@@ -14,10 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let toastTimeout;
 
   function showToast(message) {
-    if (!toast) return; // si no hay toast en el DOM, no hacemos nada
+    if (!toast) return;
     const msg = toast.querySelector(".toast-message");
     if (msg) msg.textContent = message;
-
     toast.classList.remove("hidden");
     toast.classList.add("show");
     toastTimeout = setTimeout(hideToast, 10000);
@@ -29,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => toast.classList.add("hidden"), 400);
   }
 
-  // --- Solo si existe el botón de cerrar toast ---
   if (toastClose) {
     toastClose.addEventListener("click", () => {
       clearTimeout(toastTimeout);
@@ -74,13 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (overlay) overlay.style.display = "none";
   }
 
-  // --- Inicialización simple ---
+  // --- Initialize buttons ---
   readMoreButtons.forEach(btnWrapper => {
     const lockedBtn = btnWrapper.querySelector(".locked-btn");
     const expiredNotice = btnWrapper.querySelector(".trial-expired-notice");
 
     if (!storedToken) {
-      // Sin token → mostrar botón
       lockedContents.forEach(div => (div.style.display = "none"));
       btnWrapper.style.display = "block";
 
@@ -92,14 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (expiredNotice) expiredNotice.style.display = "none";
     } else if (trialExpired) {
-      // Token expirado → mostrar span y ocultar botón
       lockedContents.forEach(div => (div.style.display = "none"));
       btnWrapper.style.display = "block";
 
       if (lockedBtn) lockedBtn.style.display = "none";
       if (expiredNotice) expiredNotice.style.display = "block";
     } else {
-      // Token válido → mostrar todo el contenido
       unlockContent();
     }
   });
@@ -121,11 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const response = await fetch(imf_ajax.url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
           body: new URLSearchParams({
             action: "imf_save_lead",
-            email,
-            slug: window.location.pathname.replace(/^\/+|\/+$/g, "")
+            email: email,
+            slug: window.location.pathname,
+            nonce: imf_ajax.nonce
           })
         });
 
@@ -141,35 +137,28 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast(data.data.message);
         } else {
           if (data.data.trialExpired) {
-            // --- 1. Ocultar botón ---
             readMoreButtons.forEach(btnWrapper => {
               const lockedBtn = btnWrapper.querySelector(".locked-btn");
               if (lockedBtn) lockedBtn.style.display = "none";
-            });
-
-            // --- 2. Mostrar span de expiración ---
-            readMoreButtons.forEach(btnWrapper => {
               const expiredNotice = btnWrapper.querySelector(".trial-expired-notice");
               if (expiredNotice) expiredNotice.style.display = "block";
             });
 
-            // --- 3. Cerrar modal ---
             if (overlay) overlay.style.display = "none";
 
-            // --- 4. Crear cookie/localStorage con fecha pasada ---
             const expiredToken = {
               token: "tok_" + Math.random().toString(36).substring(2, 12),
-              created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 día atrás
+              created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
             };
             localStorage.setItem("wplf", JSON.stringify(expiredToken));
 
             showToast(data.data.message);
           } else {
-            // cualquier otro error
             showToast(data.data.message);
           }
         }
       } catch (err) {
+        console.error(err);
         showToast("An unexpected error occurred. Please try again.");
       } finally {
         submitBtn.disabled = false;

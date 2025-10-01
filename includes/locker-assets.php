@@ -2,31 +2,33 @@
 if (!defined('ABSPATH')) exit;
 
 function seo_locker_enqueue_assets() {
-    if (!is_single()) return;
+    if (!is_single()) return; // Solo en posts
 
-    $css = plugin_dir_path(__FILE__) . '../assets/locker.css';
-    if (file_exists($css)) {
+    $js_file  = plugin_dir_path(__DIR__) . 'assets/locker.js';
+    $css_file = plugin_dir_path(__DIR__) . 'assets/locker.css';
+
+    if (file_exists($css_file)) {
         wp_enqueue_style(
             'seo-locker-css',
-            plugin_dir_url(__FILE__) . '../assets/locker.css',
+            plugin_dir_url(__DIR__) . 'assets/locker.css',
             [],
-            filemtime($css)
+            filemtime($css_file)
         );
     }
 
-    $js = plugin_dir_path(__FILE__) . '../assets/locker.js';
-    if (file_exists($js)) {
+    if (file_exists($js_file)) {
         wp_enqueue_script(
             'seo-locker-js',
-            plugin_dir_url(__FILE__) . '../assets/locker.js',
+            plugin_dir_url(__DIR__) . 'assets/locker.js',
             [],
-            filemtime($js),
+            filemtime($js_file),
             true
         );
 
-        wp_localize_script('seo-locker-js', 'seo_locker_ajax', [
+        // Pasamos variables al JS
+        wp_localize_script('seo-locker-js', 'imf_ajax', [
             'url'   => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('seo_locker_nonce'),
+            'nonce' => wp_create_nonce('imf_nonce'),
         ]);
     }
 }
