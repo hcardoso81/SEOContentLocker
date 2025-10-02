@@ -24,10 +24,14 @@ function seo_locker_install() {
 
     $charset_collate = $wpdb->get_charset_collate();
 
+    $wpdb->query("DROP TABLE IF EXISTS $table_name");
+
     $sql = "CREATE TABLE $table_name (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         email VARCHAR(255) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        ip varchar(45) DEFAULT NULL,
+        country varchar(100) DEFAULT NULL,
         post_slug VARCHAR(255) NOT NULL,
         PRIMARY KEY  (id),
         UNIQUE KEY unique_email (email)

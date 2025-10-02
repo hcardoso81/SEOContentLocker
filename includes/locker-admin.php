@@ -35,44 +35,56 @@ function seo_locker_admin_page() {
     echo '<div class="wrap">';
     echo '<h1>Leads capturados</h1>';
 
-    // Botón de exportar CSV
-    $export_nonce = wp_create_nonce('seocontentlocker_export');
-    $export_url   = admin_url("admin-post.php?action=seocontentlocker_export_csv&_wpnonce={$export_nonce}");
-    echo '<p><a href="' . esc_url($export_url) . '" class="button button-primary">Exportar a CSV</a></p>';
+    // --- Botón de exportar CSV con POST ---
+    echo '<form method="POST" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-bottom:20px;">';
+    echo '<input type="hidden" name="action" value="seocontentlocker_export_csv">';
+    wp_nonce_field('seocontentlocker_export');
+    echo '<button type="submit" class="button button-primary">Exportar a CSV</button>';
+    echo '</form>';
 
     $results = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
 
-    if ($results) {
-        echo '<table class="widefat fixed striped">';
-        echo '<thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Post Slug</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-              </thead>';
-        echo '<tbody>';
-        foreach ($results as $row) {
-            $delete_nonce = wp_create_nonce('seocontentlocker_delete_' . $row->id);
-            $delete_url   = admin_url("admin-post.php?action=seocontentlocker_delete_lead&id={$row->id}&_wpnonce={$delete_nonce}");
+ if ($results) {
+    echo '<table class="widefat fixed striped">';
+    echo '<thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Post Slug</th>
+                <th>Fecha</th>
+                <th>IP</th>
+                <th>País</th>
+                <th>Acciones</th>
+            </tr>
+          </thead>';
+    echo '<tbody>';
+    foreach ($results as $row) {
+        echo '<tr>';
+        echo '<td>' . esc_html($row->id) . '</td>';
+        echo '<td>' . esc_html($row->email) . '</td>';
+        echo '<td>' . esc_html($row->post_slug) . '</td>';
+        echo '<td>' . esc_html($row->created_at) . '</td>';
+        echo '<td>' . esc_html($row->ip) . '</td>';
+        echo '<td>' . esc_html($row->country) . '</td>';
+        echo '<td>';
 
-            echo '<tr>';
-            echo '<td>' . esc_html($row->id) . '</td>';
-            echo '<td>' . esc_html($row->email) . '</td>';
-            echo '<td>' . esc_html($row->post_slug) . '</td>';
-            echo '<td>' . esc_html($row->created_at) . '</td>';
-            echo '<td>';
-            echo '<a href="' . esc_url($delete_url) . '" class="button button-secondary" onclick="return confirm(\'¿Estás seguro de eliminar este lead?\')">Eliminar</a>';
-            echo '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody>';
-        echo '</table>';
-    } else {
-        echo '<p>No hay leads capturados aún.</p>';
+        // --- Botón eliminar con POST ---
+        echo '<form method="POST" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:inline">';
+        echo '<input type="hidden" name="action" value="seocontentlocker_delete_lead">';
+        echo '<input type="hidden" name="id" value="' . esc_attr($row->id) . '">';
+        wp_nonce_field('seocontentlocker_delete_' . $row->id);
+        echo '<button type="submit" class="button button-secondary" onclick="return confirm(\'¿Estás seguro de eliminar este lead?\')">Eliminar</button>';
+        echo '</form>';
+
+        echo '</td>';
+        echo '</tr>';
     }
+    echo '</tbody>';
+    echo '</table>';
+} else {
+    echo '<p>No hay leads capturados aún.</p>';
+}
+
 
     echo '</div>';
 }
