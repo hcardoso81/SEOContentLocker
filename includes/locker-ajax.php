@@ -4,11 +4,10 @@ if (!defined('ABSPATH')) exit;
 /**
  * Guardar leads vía AJAX
  */
-function imf_save_lead()
-{
+function seocontentlocker_save_lead() {
     // --- Verificar nonce ---
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'imf_nonce')) {
-        wp_send_json_error(['message' => __('Invalid request. Please try again.', 'imf')]);
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seocontentlocker_nonce')) {
+        wp_send_json_error(['message' => __('Invalid request. Please try again.', 'seocontentlocker')]);
     }
 
     global $wpdb;
@@ -18,7 +17,7 @@ function imf_save_lead()
     $slug  = sanitize_text_field($_POST['slug']);
 
     if (!is_email($email)) {
-        wp_send_json_error(['message' => __('Invalid email address', 'imf')]);
+        wp_send_json_error(['message' => __('Invalid email address', 'seocontentlocker')]);
     }
 
     // Verificar si existe
@@ -28,7 +27,7 @@ function imf_save_lead()
 
     if ($exists) {
         wp_send_json_error([
-            'message' => __('Your free trial period has already ended.', 'imf'),
+            'message' => __('Your free trial period has already ended.', 'seocontentlocker'),
             'trialExpired' => true
         ]);
     }
@@ -45,10 +44,10 @@ function imf_save_lead()
     );
 
     wp_send_json_success([
-        'message' => __('You have successfully subscribed to the 40-day free trial!', 'imf')
+        'message' => __('You have successfully subscribed to the 40-day free trial!', 'seocontentlocker')
     ]);
 }
 
-// Hook AJAX
-add_action('wp_ajax_imf_save_lead', 'imf_save_lead');
-add_action('wp_ajax_nopriv_imf_save_lead', 'imf_save_lead');
+// Hooks AJAX
+add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
+add_action('wp_ajax_nopriv_seocontentlocker_save_lead', 'seocontentlocker_save_lead');

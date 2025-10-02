@@ -114,14 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Loading...";
 
       try {
-        const response = await fetch(imf_ajax.url, {
+        const response = await fetch(seocontentlocker_ajax.url, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
           body: new URLSearchParams({
-            action: "imf_save_lead",
+            action: "seocontentlocker_save_lead",
             email: email,
             slug: window.location.pathname,
-            nonce: imf_ajax.nonce
+            nonce: seocontentlocker_ajax.nonce
           })
         });
 

@@ -20,15 +20,15 @@ function seo_locker_enqueue_assets() {
         wp_enqueue_script(
             'seo-locker-js',
             plugin_dir_url(__DIR__) . 'assets/locker.js',
-            [],
+            ['jquery'], // opcional: depende si usás $
             filemtime($js_file),
             true
         );
 
-        // Pasamos variables al JS
-        wp_localize_script('seo-locker-js', 'imf_ajax', [
+        // Pasamos variables al JS con prefijo consistente
+        wp_localize_script('seo-locker-js', 'seocontentlocker_ajax', [
             'url'   => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('imf_nonce'),
+            'nonce' => wp_create_nonce('seocontentlocker_nonce'),
         ]);
     }
 }
