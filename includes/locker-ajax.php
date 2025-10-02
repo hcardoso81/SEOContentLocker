@@ -51,3 +51,56 @@ function seocontentlocker_save_lead() {
 // Hooks AJAX
 add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
 add_action('wp_ajax_nopriv_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
+
+function seocontentlocker_export_csv() {
+    if (!current_user_can('manage_options')) {
+        wp_die('No tienes permisos suficientes.');
+    }
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'seocontentlocker_export')) {
+        wp_die('Nonce inválido.');
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'leads_subscriptions';
+    $results = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC", ARRAY_A);
+
+    if (!$results) {
+        wp_die('No hay leads para exportar.');
+    }
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=leads-' . date('Y-m-d') . '.csv');
+    $output = fopen('php://output', 'w');
+
+    // Encabezados
+    fputcsv($output, ['ID', 'Email', 'Post Slug', 'Fecha']);
+
+    foreach ($results as $row) {
+        fputcsv($output, $row);
+    }
+    fclose($output);
+    exit;
+}
+add_action('admin_post_seocontentlocker_export_csv', 'seocontentlocker_export_csv');
+
+function seocontentlocker_delete_lead() {
+    if (!current_user_can('manage_options')) {
+        wp_die('No tienes permisos suficientes.');
+    }
+    $id = intval($_GET['id'] ?? 0);
+    if (!$id) wp_die('ID inválido.');
+
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'seocontentlocker_delete_' . $id)) {
+        wp_die('Nonce inválido.');
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'leads_subscriptions';
+    $wpdb->delete($table_name, ['id' => $id], ['%d']);
+
+    wp_redirect(admin_url('admin.php?page=seo-locker&deleted=1'));
+    exit;
+}
+add_action('admin_post_seocontentlocker_delete_lead', 'seocontentlocker_delete_lead');
+
+
