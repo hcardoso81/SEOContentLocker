@@ -6,6 +6,7 @@
     "date",
     "pcre",
     "session",
+    "json",
     "filter"
     ],
     "php.suggest.basic": false,

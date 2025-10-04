@@ -14,6 +14,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/locker-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-shortcode.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-assets.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';
+require_once plugin_dir_path(__FILE__) . 'includes/locker-mailchimp-admin.php';
 
 // Crear tabla al activar
 register_activation_hook(__FILE__, 'seo_locker_install');
@@ -33,6 +34,7 @@ function seo_locker_install() {
         ip varchar(45) DEFAULT NULL,
         country varchar(100) DEFAULT NULL,
         post_slug VARCHAR(255) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
         PRIMARY KEY  (id),
         UNIQUE KEY unique_email (email)
     ) $charset_collate;";
