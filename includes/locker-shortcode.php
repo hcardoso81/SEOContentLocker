@@ -20,6 +20,9 @@ function locked_content_shortcode($atts, $content = null)
             If you believe this is an error, please 
             <a href="mailto:info@intermarketflow.com" target="_blank">contact the administrator</a>.
         </div>
+        <div class="confirm-email-notice">
+            Please confirm your email to unlock the content.
+        </div>
         
         <div class="locked-separator" style="margin:10px 0; text-align:center;">
             <strong>OR</strong>

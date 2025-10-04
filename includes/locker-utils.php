@@ -1,6 +1,6 @@
 <?php
 function seocontentlocker_mailchimp_subscribe($apiKey, $listId, $email) {
-    $dc = substr($apiKey, strpos($apiKey, '-')+1); // datacenter de Mailchimp
+    $dc = substr($apiKey, strpos($apiKey, '-') + 1);
     $url = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/";
 
     $body = [
@@ -21,5 +21,10 @@ function seocontentlocker_mailchimp_subscribe($apiKey, $listId, $email) {
     }
 
     $code = wp_remote_retrieve_response_code($response);
-    return ['success' => ($code == 200 || $code == 201)];
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+
+    return [
+        'success' => ($code == 200 || $code == 201),
+        'status'  => $body['status'] ?? 'pending'
+    ];
 }

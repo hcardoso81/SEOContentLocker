@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (data.success) {
+          // ✅ Caso 1: Confirmado -> desbloqueamos contenido
           const tokenObj = {
             token: "tok_" + Math.random().toString(36).substring(2, 12),
             created_at: new Date().toISOString()
@@ -135,28 +136,49 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("wplf", JSON.stringify(tokenObj));
           unlockContent();
           showToast(data.data.message);
+
+        } else if (data.data && data.data.pending) {
+          // 🔵 Caso 2: Email pendiente de confirmación
+          if (overlay) overlay.style.display = "none";
+          readMoreButtons.forEach(btnWrapper => {
+            const lockedBtn = btnWrapper.querySelector(".locked-btn");
+            const lockerSeparator = btnWrapper.querySelector(".locked-separator");
+            const upgradeBtn = btnWrapper.querySelector(".elementor-button-wrapper");
+            if (lockedBtn) lockedBtn.style.display = "none";
+            if (upgradeBtn) upgradeBtn.style.display = "none";
+            if (lockerSeparator) lockerSeparator.style.display = "none";
+          });
+          showToast("Please confirm your email to unlock the content.");
+
+          // Mostrar aviso azul en la UI
+          document.querySelectorAll(".confirm-email-notice").forEach(notice => {
+            notice.style.display = "block";
+          });
+
+        } else if (data.data && data.data.trialExpired) {
+          // 🔴 Caso 3: Trial expirado
+          readMoreButtons.forEach(btnWrapper => {
+            const lockedBtn = btnWrapper.querySelector(".locked-btn");
+            if (lockedBtn) lockedBtn.style.display = "none";
+            const expiredNotice = btnWrapper.querySelector(".trial-expired-notice");
+            if (expiredNotice) expiredNotice.style.display = "block";
+          });
+
+          if (overlay) overlay.style.display = "none";
+
+          const expiredToken = {
+            token: "tok_" + Math.random().toString(36).substring(2, 12),
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+          };
+          localStorage.setItem("wplf", JSON.stringify(expiredToken));
+
+          showToast(data.data.message);
+
         } else {
-          if (data.data.trialExpired) {
-            readMoreButtons.forEach(btnWrapper => {
-              const lockedBtn = btnWrapper.querySelector(".locked-btn");
-              if (lockedBtn) lockedBtn.style.display = "none";
-              const expiredNotice = btnWrapper.querySelector(".trial-expired-notice");
-              if (expiredNotice) expiredNotice.style.display = "block";
-            });
-
-            if (overlay) overlay.style.display = "none";
-
-            const expiredToken = {
-              token: "tok_" + Math.random().toString(36).substring(2, 12),
-              created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
-            };
-            localStorage.setItem("wplf", JSON.stringify(expiredToken));
-
-            showToast(data.data.message);
-          } else {
-            showToast(data.data.message);
-          }
+          // ⚠️ Otro error genérico
+          showToast(data.data.message || "An unexpected error occurred.");
         }
+
       } catch (err) {
         console.error(err);
         showToast("An unexpected error occurred. Please try again.");
@@ -166,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
 
   // --- Close overlay ---
   if (closeBtn && overlay) {

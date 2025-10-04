@@ -15,6 +15,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/locker-shortcode.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-assets.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-mailchimp-admin.php';
+require_once plugin_dir_path(__FILE__) . 'includes/locker-utils.php';
 
 // Crear tabla al activar
 register_activation_hook(__FILE__, 'seo_locker_install');

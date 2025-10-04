@@ -252,4 +252,24 @@ button.modal-close:focus {
 .trial-expired-notice a:hover {
   color: #ffdcdc;
 }
+.confirm-email-notice {
+  display: none; /* por defecto se oculta, JS lo mostrará */
+  background-color: #4F81BD; /* azul nuevo */
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.confirm-email-notice a {
+  color: #fff;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.confirm-email-notice a:hover {
+  color: #d0e0f0; /* un azul más claro para hover */
+}
 

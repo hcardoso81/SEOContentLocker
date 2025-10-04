@@ -4,7 +4,8 @@ if (!defined('ABSPATH')) exit;
 /**
  * Obtener país desde IP usando ipapi.co
  */
-function seocontentlocker_get_country_from_ip($ip) {
+function seocontentlocker_get_country_from_ip($ip)
+{
     if (empty($ip) || $ip === '127.0.0.1' || $ip === '::1') {
         return 'Unknown';
     }
@@ -35,7 +36,8 @@ function seocontentlocker_get_country_from_ip($ip) {
 /**
  * Guardar leads vía AJAX
  */
-function seocontentlocker_save_lead() {
+function seocontentlocker_save_lead()
+{
     // Verificar nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seocontentlocker_nonce')) {
         wp_send_json_error(['message' => __('Invalid request. Please try again.', 'seocontentlocker')]);
@@ -51,15 +53,17 @@ function seocontentlocker_save_lead() {
         wp_send_json_error(['message' => __('Invalid email address', 'seocontentlocker')]);
     }
 
-    // Capturar IP real
-     global $_SERVER;
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
-    } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_REAL_IP'])) {
-        $ip = $_SERVER['HTTP_X_REAL_IP'];
+
+    $ip = '';
+    if (isset($_SERVER)) {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+        } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        }
     }
 
     // Obtener país
@@ -105,9 +109,18 @@ function seocontentlocker_save_lead() {
         if (!$result['success']) {
             wp_send_json_error(['message' => __('Error al conectar con Mailchimp', 'seocontentlocker')]);
         }
+
+        if (isset($result['status']) && $result['status'] === 'pending') {
+            wp_send_json_error([
+                'message' => __('Please confirm your email to unlock the content.', 'seocontentlocker'),
+                'pending' => true
+            ]);
+        }
     }
 
-    wp_send_json_success(['message' => __('Revisa tu email y confirma tu suscripción.', 'seocontentlocker')]);
+    wp_send_json_success([
+        'message' => __('Your subscription was confirmed! Content unlocked.', 'seocontentlocker')
+    ]);
 }
 
 // Hooks AJAX
@@ -117,7 +130,8 @@ add_action('wp_ajax_nopriv_seocontentlocker_save_lead', 'seocontentlocker_save_l
 /**
  * Exportar leads a CSV
  */
-function seocontentlocker_export_csv() {
+function seocontentlocker_export_csv()
+{
     if (!current_user_can('manage_options')) wp_die('No tienes permisos suficientes.');
     if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'seocontentlocker_export')) wp_die('Nonce inválido.');
 
@@ -141,7 +155,8 @@ add_action('admin_post_seocontentlocker_export_csv', 'seocontentlocker_export_cs
 /**
  * Eliminar lead
  */
-function seocontentlocker_delete_lead() {
+function seocontentlocker_delete_lead()
+{
     if (!current_user_can('manage_options')) wp_die('No tienes permisos suficientes.');
 
     $id = intval($_POST['id'] ?? 0);
@@ -162,7 +177,8 @@ add_action('admin_post_seocontentlocker_delete_lead', 'seocontentlocker_delete_l
  * Test conexión Mailchimp
  */
 add_action('wp_ajax_seocontentlocker_mailchimp_test', 'seocontentlocker_mailchimp_test');
-function seocontentlocker_mailchimp_test() {
+function seocontentlocker_mailchimp_test()
+{
     if (!current_user_can('manage_options')) wp_send_json_error('No tienes permisos suficientes.');
     check_ajax_referer('seocontentlocker_mailchimp_nonce', 'nonce');
 
