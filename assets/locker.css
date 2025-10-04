@@ -253,20 +253,3 @@ button.modal-close:focus {
   color: #ffdcdc;
 }
 
-#mc-test-result.success {
-  background-color: #e6f9e6;
-  color: #1b8a1b;
-  border: 1px solid #1b8a1b;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin-left: 10px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-#mc-test-result.success::before {
-  content: "✔️";
-  font-size: 16px;
-}
