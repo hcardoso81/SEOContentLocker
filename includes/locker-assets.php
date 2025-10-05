@@ -33,3 +33,47 @@ function seo_locker_enqueue_assets() {
     }
 }
 add_action('wp_enqueue_scripts', 'seo_locker_enqueue_assets');
+
+
+
+function seocontentlocker_mailchimp_admin_scripts($hook_suffix)
+{
+    // Solo en admin
+    if (!is_admin()) return;
+
+    // Solo en la página de ajustes de Mailchimp
+    if ($hook_suffix !== 'seo-locker_page_seocontentlocker-mailchimp') return;
+
+    $plugin_root = dirname(__DIR__); // un nivel arriba de includes
+
+    $js_file  = $plugin_root . '/assets/locker-mailchimp.js';
+    $js_url   = plugins_url('../assets/locker-mailchimp.js', __FILE__);
+    $css_file = $plugin_root . '/assets/mailchimp-admin.css';
+    $css_url  = plugins_url('../assets/mailchimp-admin.css', __FILE__);
+
+    if (file_exists($js_file)) {
+        wp_enqueue_script(
+            'seocontentlocker-mailchimp-admin',
+            $js_url,
+            ['jquery'],
+            filemtime($js_file),
+            true
+        );
+    }
+
+    if (file_exists($css_file)) {
+        wp_enqueue_style(
+            'seocontentlocker-mailchimp-admin',
+            $css_url,
+            [],
+            filemtime($css_file)
+        );
+    }
+
+    // Pasar variables JS
+    wp_localize_script('seocontentlocker-mailchimp-admin', 'seocontentlocker_mailchimp', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('seocontentlocker_mailchimp_nonce'),
+    ]);
+}
+add_action('admin_enqueue_scripts', 'seocontentlocker_mailchimp_admin_scripts');

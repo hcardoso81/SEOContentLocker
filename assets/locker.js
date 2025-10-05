@@ -101,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Submit handler ---
   if (submitBtn) {
+
     submitBtn.addEventListener("click", async () => {
       if (!emailInput) return;
 
@@ -148,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (upgradeBtn) upgradeBtn.style.display = "none";
             if (lockerSeparator) lockerSeparator.style.display = "none";
           });
-          showToast("Please confirm your email to unlock the content.");
+          //showToast("Please confirm your email to unlock the content.");
 
           // Mostrar aviso azul en la UI
           document.querySelectorAll(".confirm-email-notice").forEach(notice => {

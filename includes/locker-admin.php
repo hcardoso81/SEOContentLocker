@@ -54,6 +54,7 @@ function seo_locker_admin_page() {
                 <th>Fecha</th>
                 <th>IP</th>
                 <th>País</th>
+                <th>Status</th>
                 <th>Acciones</th>
             </tr>
           </thead>';
@@ -66,6 +67,7 @@ function seo_locker_admin_page() {
         echo '<td>' . esc_html($row->created_at) . '</td>';
         echo '<td>' . esc_html($row->ip) . '</td>';
         echo '<td>' . esc_html($row->country) . '</td>';
+        echo '<td>' . esc_html($row->status) . '</td>';
         echo '<td>';
 
         // --- Botón eliminar con POST ---
