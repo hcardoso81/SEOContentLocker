@@ -77,3 +77,21 @@ function seocontentlocker_mailchimp_admin_scripts($hook_suffix)
     ]);
 }
 add_action('admin_enqueue_scripts', 'seocontentlocker_mailchimp_admin_scripts');
+
+
+add_action('admin_enqueue_scripts', 'seo_locker_admin_custom_styles');
+function seo_locker_admin_custom_styles($hook_suffix) {
+    if ($hook_suffix !== 'toplevel_page_seo-locker') return; // Solo en tu menú principal
+
+    $custom_css = '
+        .toplevel_page_seo-locker table.widefat th:nth-child(1),
+        .toplevel_page_seo-locker table.widefat td:nth-child(1) {
+            width: 50px;
+        }
+        .toplevel_page_seo-locker table.widefat th:nth-child(2),
+        .toplevel_page_seo-locker table.widefat td:nth-child(2) {
+            width: 300px;
+        }
+    ';
+    wp_add_inline_style('wp-admin', $custom_css);
+}

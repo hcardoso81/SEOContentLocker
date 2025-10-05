@@ -110,3 +110,85 @@ function seocontentlocker_mailchimp_subscribe($apiKey, $listId, $email) {
         'status'  => $body['status'] ?? 'pending'
     ];
 }
+
+
+/**
+ * Obtiene un miembro de Mailchimp por email
+ */
+function seocontentlocker_get_mailchimp_member($apiKey, $listId, $email) {
+    $dc = substr($apiKey, strpos($apiKey, '-') + 1);
+    $subscriberHash = md5(strtolower($email));
+    $url = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}";
+
+    $response = wp_remote_get($url, [
+        'headers' => [
+            'Authorization' => 'apikey ' . $apiKey,
+            'Accept'        => 'application/json'
+        ]
+    ]);
+
+    if (is_wp_error($response)) return false;
+
+    $code = wp_remote_retrieve_response_code($response);
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+
+    return ($code === 200) ? $body : false;
+}
+
+
+/**
+ * Reenvía el email de confirmación de Mailchimp para un lead existente en estado 'pending'
+ *
+ * @param string $apiKey Mailchimp API key
+ * @param string $listId ID de la lista
+ * @param string $email Email del suscriptor
+ * @return array Resultado con success, status y message
+ */
+function seocontentlocker_mailchimp_resend_confirmation($apiKey, $listId, $email) {
+    if (empty($apiKey) || empty($listId) || empty($email)) {
+        return [
+            'success' => false,
+            'status'  => 'pending',
+            'message' => __('Missing required parameters for Mailchimp confirmation resend.', 'seocontentlocker')
+        ];
+    }
+
+    $dc = substr($apiKey, strpos($apiKey, '-') + 1);
+    $subscriberHash = md5(strtolower($email));
+    $url = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}";
+
+    $body = ['status' => 'pending']; // Fuerza el reenvío del email de confirmación
+
+    $response = wp_remote_request($url, [
+        'method'  => 'PATCH',
+        'headers' => [
+            'Authorization' => 'apikey ' . $apiKey,
+            'Content-Type'  => 'application/json'
+        ],
+        'body' => json_encode($body)
+    ]);
+
+    if (is_wp_error($response)) {
+        return [
+            'success' => false,
+            'status'  => 'pending',
+            'message' => __('Error resending confirmation email: ', 'seocontentlocker') . $response->get_error_message()
+        ];
+    }
+
+    $code = wp_remote_retrieve_response_code($response);
+    if ($code == 200) {
+        return [
+            'success' => true,
+            'status'  => 'pending',
+            'message' => __('Confirmation email resent. Please check your inbox.', 'seocontentlocker')
+        ];
+    } else {
+        return [
+            'success' => false,
+            'status'  => 'pending',
+            'message' => __('Failed to resend confirmation email.', 'seocontentlocker')
+        ];
+    }
+}
+
