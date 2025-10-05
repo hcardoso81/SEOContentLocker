@@ -14,7 +14,8 @@ require_once plugin_dir_path(__FILE__) . 'locker-mailchimp-admin.php';
 add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
 add_action('wp_ajax_nopriv_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
 
-function seocontentlocker_save_lead() {
+function seocontentlocker_save_lead()
+{
     seocontentlocker_validate_nonce('nonce', 'seocontentlocker_nonce', true);
     $email = seocontentlocker_validate_email($_POST['email'] ?? '', true);
     $slug  = sanitize_text_field($_POST['slug'] ?? '');
@@ -53,9 +54,6 @@ function seocontentlocker_save_lead() {
         ]);
     }
 
-    // --- Confirmar lead en nuestra DB ---
-    seocontentlocker_db_update_confirmed($email);
-
     wp_send_json_success(['message' => $mailchimp['message']]);
 }
 
@@ -64,7 +62,8 @@ function seocontentlocker_save_lead() {
  * Mailchimp integration
  * ========================
  */
-function seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email) {
+function seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email)
+{
     if (empty($apiKey) || empty($listId)) {
         return ['success' => false, 'message' => __('Mailchimp configuration missing', 'seocontentlocker')];
     }
@@ -74,7 +73,11 @@ function seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email
     if ($existing) {
         switch ($existing['status']) {
             case 'pending':
-                return seocontentlocker_mailchimp_resend_confirmation($apiKey, $listId, $email);
+                return [
+                    'success' => true,
+                    'status'  => 'pending',
+                    'message' => __('You are already pending confirmation. Please check your inbox or spam folder to confirm your subscription.', 'seocontentlocker')
+                ];
             case 'subscribed':
                 return [
                     'success' => true,
@@ -99,5 +102,3 @@ function seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email
             __('Subscription confirmed! Content unlocked.', 'seocontentlocker')
     ];
 }
-
-

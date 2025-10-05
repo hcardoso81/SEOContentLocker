@@ -90,6 +90,7 @@ function seocontentlocker_mailchimp_subscribe($apiKey, $listId, $email) {
         'status'        => 'pending' // Double opt-in
     ];
 
+
     $response = wp_remote_post($url, [
         'headers' => [
             'Authorization' => 'apikey ' . $apiKey,
@@ -155,17 +156,37 @@ function seocontentlocker_mailchimp_resend_confirmation($apiKey, $listId, $email
 
     $dc = substr($apiKey, strpos($apiKey, '-') + 1);
     $subscriberHash = md5(strtolower($email));
-    $url = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}";
 
-    $body = ['status' => 'pending']; // Fuerza el reenvío del email de confirmación
+    // Primero obtener el estado actual del miembro
+    $member = seocontentlocker_get_mailchimp_member($apiKey, $listId, $email);
+    if (!$member) {
+        return [
+            'success' => false,
+            'status'  => 'not_found',
+            'message' => __('Subscriber not found in Mailchimp list.', 'seocontentlocker')
+        ];
+    }
 
-    $response = wp_remote_request($url, [
-        'method'  => 'PATCH',
+    if ($member['status'] !== 'pending') {
+        return [
+            'success' => false,
+            'status'  => $member['status'],
+            'message' => sprintf(
+                __('Cannot resend confirmation email because subscriber status is "%s".', 'seocontentlocker'),
+                $member['status']
+            )
+        ];
+    }
+
+    // Ahora sí, reenviamos
+    $url = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/actions/resend-confirmation";
+
+    $response = wp_remote_post($url, [
         'headers' => [
             'Authorization' => 'apikey ' . $apiKey,
             'Content-Type'  => 'application/json'
         ],
-        'body' => json_encode($body)
+        'body' => json_encode([])
     ]);
 
     if (is_wp_error($response)) {
@@ -177,18 +198,19 @@ function seocontentlocker_mailchimp_resend_confirmation($apiKey, $listId, $email
     }
 
     $code = wp_remote_retrieve_response_code($response);
-    if ($code == 200) {
+
+    if ($code == 204) {
         return [
             'success' => true,
             'status'  => 'pending',
             'message' => __('Confirmation email resent. Please check your inbox.', 'seocontentlocker')
         ];
-    } else {
-        return [
-            'success' => false,
-            'status'  => 'pending',
-            'message' => __('Failed to resend confirmation email.', 'seocontentlocker')
-        ];
     }
-}
 
+    $body = wp_remote_retrieve_body($response);
+    return [
+        'success' => false,
+        'status'  => 'pending',
+        'message' => __('Failed to resend confirmation email.', 'seocontentlocker') . ' Response: ' . $body
+    ];
+}
