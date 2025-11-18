@@ -1,104 +1,90 @@
-<?php
-if (!defined('ABSPATH')) exit;
+<?php if (!defined('ABSPATH')) exit;
 
-require_once plugin_dir_path(__FILE__) . 'locker-utils.php';
-require_once plugin_dir_path(__FILE__) . 'locker-db.php';
-require_once plugin_dir_path(__FILE__) . 'locker-geo.php';
-require_once plugin_dir_path(__FILE__) . 'locker-mailchimp-admin.php';
+/**
+ * ========================
+ * AJAX: Check lead status
+ * ========================
+ */
+
+add_action('wp_ajax_nopriv_seocontentlocker_check_lead_status', 'seocontentlocker_check_lead_status');
+add_action('wp_ajax_seocontentlocker_check_lead_status', 'seocontentlocker_check_lead_status');
+
+function seocontentlocker_check_lead_status()
+{
+    $email = validateEmail($_POST['email'] ?? '', true);
+    $slug  = sanitize_text_field($_POST['slug'] ?? '');
+    try {
+
+        check_lead($email, $slug);
+        check_ip(get_ip(), $email, false);
+        wp_send_json_success([
+            'message'     => 'checked lead status',
+            'status'      => 'success',
+        ]);
+
+        wp_die();
+    } catch (Exception $e) {
+        log_error($e, 'check_lead_ajax', $email);
+        wp_send_json_error(['message' => 'check lead: An unexpected error occurred.']);
+        wp_die();
+    }
+}
+
 
 /**
  * ========================
  * AJAX: Guardar lead
  * ========================
  */
-add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
+
 add_action('wp_ajax_nopriv_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
+add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
 
 function seocontentlocker_save_lead()
 {
-    seocontentlocker_validate_nonce('nonce', 'seocontentlocker_nonce', true);
-    $email = seocontentlocker_validate_email($_POST['email'] ?? '', true);
-    $slug  = sanitize_text_field($_POST['slug'] ?? '');
-    $ip    = seocontentlocker_get_ip();
-    $country = seocontentlocker_get_country_from_ip($ip);
+    $email = validateEmail($_POST['email'] ?? '', true);
 
-    // --- Verificar si el lead ya completó su trial ---
-    if (seocontentlocker_db_exists($email, $ip, 'confirmed')) {
-        wp_send_json_error([
-            'message' => __('Your free trial period has already ended.', 'seocontentlocker'),
-            'trialExpired' => true
-        ]);
-    }
+    try {
 
-    // --- Insertar lead pendiente si no existe ---
-    if (!seocontentlocker_db_exists($email, $ip, 'pending')) {
-        seocontentlocker_db_insert_pending($email, $ip, $country, $slug);
-    }
+        // Validaciones previas
+        check_lead($email);
+        $ip = get_ip();
+        check_ip($ip, $email);
 
-    // --- Suscribir a Mailchimp (o revisar estado existente) ---
-    $apiKey = get_option('seocontentlocker_mc_api_key');
-    $listId = get_option('seocontentlocker_mc_list_id');
+        // Guardar lead local
+        save_lead($email);
 
-    $mailchimp = seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email);
+        // 🔥 SUSCRIPCIÓN MAILCHIMP (antes de enviar JSON)
+        $slug = sanitize_text_field($_POST['slug'] ?? '');
+        $mcResponse = seocontentlocker_mailchimp_subscribe($email, $slug);
 
-    if (!$mailchimp['success']) {
-        wp_send_json_error(['message' => $mailchimp['message']]);
-    }
-
-    // --- Respuesta según estado ---
-    if ($mailchimp['status'] === 'pending') {
-        // El usuario ya está pendiente, podemos informar o incluso reenviar el email de confirmación
-        wp_send_json_error([
-            'message' => $mailchimp['message'],
-            'pending' => true
-        ]);
-    }
-
-    wp_send_json_success(['message' => $mailchimp['message']]);
-}
-
-/**
- * ========================
- * Mailchimp integration
- * ========================
- */
-function seocontentlocker_handle_mailchimp_subscription($apiKey, $listId, $email)
-{
-    if (empty($apiKey) || empty($listId)) {
-        return ['success' => false, 'message' => __('Mailchimp configuration missing', 'seocontentlocker')];
-    }
-
-    // --- Primero consultamos si el miembro ya existe ---
-    $existing = seocontentlocker_get_mailchimp_member($apiKey, $listId, $email);
-    if ($existing) {
-        switch ($existing['status']) {
-            case 'pending':
-                return [
-                    'success' => true,
-                    'status'  => 'pending',
-                    'message' => __('You are already pending confirmation. Please check your inbox or spam folder to confirm your subscription.', 'seocontentlocker')
-                ];
-            case 'subscribed':
-                return [
-                    'success' => true,
-                    'status'  => 'subscribed',
-                    'message' => __('Subscription confirmed! Content unlocked.', 'seocontentlocker')
-                ];
+        if (!$mcResponse['success']) {
+            log_error(
+                'Mailchimp subscription failed',
+                'mailchimp_subscribe',
+                [
+                    'email' => $email,
+                    'mailchimp_error' => $mcResponse
+                ]
+            );
         }
+
+        // 👉 recién ahora se responde al frontend
+        wp_send_json_success([
+            'message' => 'Subscription processed',
+            'status'  => $mcResponse['success'] ? 'success' : 'mailchimp_failed',
+            'mc'      => $mcResponse
+        ]);
+
+        wp_die();
+
+    } catch (Exception $e) {
+        log_error($e, 'save_lead_ajax', $email);
+
+        wp_send_json_error([
+            'message' => 'save lead: An unexpected error occurred.'
+        ]);
+
+        wp_die();
     }
-
-    // --- Si no existe, suscribimos normalmente ---
-    $result = seocontentlocker_mailchimp_subscribe($apiKey, $listId, $email);
-
-    if (!$result['success']) {
-        return ['success' => false, 'message' => __('Error connecting to Mailchimp', 'seocontentlocker')];
-    }
-
-    return [
-        'success' => true,
-        'status'  => $result['status'],
-        'message' => $result['status'] === 'pending' ?
-            __('Please check your email to confirm your subscription.', 'seocontentlocker') :
-            __('Subscription confirmed! Content unlocked.', 'seocontentlocker')
-    ];
 }

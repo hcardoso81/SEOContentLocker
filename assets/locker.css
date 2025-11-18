@@ -1,9 +1,9 @@
 /* Overlay general */
 #lead-overlay {
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -14,11 +14,11 @@
 /* Fondo difuminado */
 .overlay-backdrop {
   position: absolute;
-  top: 0; 
+  top: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.85); 
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(5px);
 }
 
@@ -30,7 +30,7 @@
   max-width: 900px;
   width: 90%;
   z-index: 10000;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -51,27 +51,27 @@
 }
 
 .overlay-modal h2 {
-    font-size: 28px;
-    line-height: 1.3;
-    margin-bottom: 16px;
-    color: #4F81BD;
-    font-weight: 700;
-    text-align: center;
+  font-size: 28px;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  color: #4F81BD;
+  font-weight: 700;
+  text-align: center;
 }
 
 .overlay-modal p {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 16px;
-    color: #333;
-    text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  color: #333;
+  text-align: center;
 }
 
 .overlay-modal .trial-note {
-    font-size: 14px;
-    line-height: 1.4;
-    color: #555;
-    margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #555;
+  margin-bottom: 20px;
 }
 
 /* Botón cerrar modal */
@@ -91,7 +91,8 @@ button.modal-close {
 
 button.modal-close:hover,
 button.modal-close:focus {
-  color: #2f5b8a !important; /* tono más oscuro */
+  color: #2f5b8a !important;
+  /* tono más oscuro */
 }
 
 /* Títulos y párrafos */
@@ -180,43 +181,79 @@ button.modal-close:focus {
 .read-more-locked {
   text-align: center;
   margin: 2rem 0;
-  display: none;
+  display: block;
+  /* o flex si quieres */
+  gap: 12px;
+  /* si usas flex */
 }
 
-.read-more-locked .locked-btn {
-  padding: 12px 24px;
+.read-more-locked a,
+.read-more-locked button {
+  margin: 8px;
+}
+
+.locked-btn {
+  display: inline-block;
+  /* funciona para <a> y <button> */
+  padding: 12px 28px;
+  /* mismo tamaño que los botones del formulario */
   background: #4F81BD;
   color: #fff;
+  /* texto blanco */
   border: none;
   border-radius: 8px;
   font-weight: bold;
+  font-family: Arial, sans-serif;
   cursor: pointer;
-  transition: background 0.3s ease;
+  text-decoration: none !important;
+  /* quita el subrayado para <a> */
+  text-align: center;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-.read-more-locked .locked-btn:hover {
+.locked-btn:hover {
   background: #2f5b8a;
+  /* fondo más oscuro al hover */
+  color: #fff;
+  /* mantiene el texto en blanco */
+  text-decoration: none;
+  /* asegura que no se subraye */
 }
 
-
-/* Toast */
+/* =============================== */
+/* ✅ TOAST MEJORADO */
+/* =============================== */
 .toast {
   position: fixed;
-  bottom: 20px; /* o top: 20px; right: 20px; si preferís arriba */
+  bottom: 20px;
   right: 20px;
   background: #4F81BD;
   color: #fff;
-  font-weight: bold;
-  padding: 12px 20px;
+  font-weight: 500;
+  padding: 12px 16px;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  justify-content: space-between;
+  /* 👈 equilibra texto y botón */
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 10001;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.toast-message {
+  flex: 1;
+  /* 👈 ocupa todo el espacio disponible */
+  text-align: left;
+  /* 👈 texto alineado a la izquierda */
+  margin-right: 12px;
+  /* 👈 espacio entre texto y botón */
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .toast.show {
@@ -228,9 +265,26 @@ button.modal-close:focus {
   display: none;
 }
 
+/* Botón cerrar */
+.toast .toast-close {
+  all: unset;
+  cursor: pointer;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 2px 4px;
+  transition: color 0.3s ease;
+}
+
+.toast .toast-close:hover,
+.toast .toast-close:focus {
+  color: #ddd;
+}
+
 
 button.modal-close {
-  all: unset; 
+  all: unset;
   cursor: pointer;
   color: white;
   font-size: 20px;
@@ -238,47 +292,137 @@ button.modal-close {
   line-height: 1;
   transition: color 0.3s ease;
 }
+
 button.modal-close:hover,
 button.modal-close:focus {
   color: #2f5b8a;
 }
 
+
+
+#access-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+.loader-modal {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.loader-modal p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #444;
+}
+
+/* Spinner animado */
+.spinner {
+  border: 4px solid #ddd;
+  border-top: 4px solid #0073aa;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
 .toast .toast-close {
-  all: unset; 
+  all: unset;
   cursor: pointer;
   color: #fff;
   font-size: 18px;
   font-weight: bold;
   line-height: 1;
 }
+
 .toast .toast-close:hover,
 .toast .toast-close:focus {
-  color: #ddd; 
+  color: #ddd;
 }
 
 .trial-expired-notice {
-  display: none; /* por defecto se oculta, JS lo mostrará */
-  background-color: #e74c3c; /* rojo */
+  display: none;
+
+
+  /* rojo */
   color: #fff;
-  padding: 12px;
-  border-radius: 8px;
+
+
   margin-top: 16px;
   font-weight: bold;
   text-align: center;
 }
 
+.trial-expired-notice .trial-expired {
+  background-color: #e74c3c;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.trial-expired-notice .locked-separator {
+ color: #444;;
+  
+}
+
+
 .trial-expired-notice a {
-  color: #fff;
-  text-decoration: underline;
+  color: #fff !important;
+  text-decoration: underline !important;
   font-weight: bold;
 }
 
 .trial-expired-notice a:hover {
-  color: #ffdcdc;
+  color: #ffdcdc !important;
 }
+
 .confirm-email-notice {
-  display: none; /* por defecto se oculta, JS lo mostrará */
-  background-color: #4F81BD; /* azul nuevo */
+  display: none;
+  /* por defecto se oculta, JS lo mostrará */
+  background-color: #4F81BD;
+  /* azul nuevo */
   color: #fff;
   padding: 12px;
   border-radius: 8px;
@@ -294,6 +438,125 @@ button.modal-close:focus {
 }
 
 .confirm-email-notice a:hover {
-  color: #d0e0f0; /* un azul más claro para hover */
+  color: #d0e0f0;
+  /* un azul más claro para hover */
 }
 
+
+
+
+/****Form****/
+
+.subscription-form-wrapper {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.subscription-form-wrapper h2 {
+  color: #4F81BD!important;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.subscription-form-wrapper .subscription-text {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.subscription-form-wrapper input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.subscription-form-wrapper input[type="email"]:focus {
+  border: 2px solid #4F81BD;
+  outline: none;
+}
+
+.subscription-form-wrapper .consent-text {
+  display: flex;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.subscription-form-wrapper .consent-text input[type="checkbox"] {
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.subscription-form-wrapper .consent-text a {
+  color: #4F81BD;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.subscription-form-wrapper button {
+  padding: 12px 28px;
+  background: #4F81BD;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.subscription-form-wrapper button:hover:enabled {
+  background: #2f5b8a;
+}
+
+.subscription-form-wrapper button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+#form-message-page {
+  margin-top: 1rem;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: block;
+}
+
+
+
+/**** .subscription-inline-message ***/
+
+.subscription-inline-message {
+  margin-top: 15px;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 15px;
+  display: none;
+}
+
+.subscription-inline-message.info {
+  background: #e8f3ff;
+  border-left: 4px solid #1a73e8;
+  color: #1a4fa8;
+}
+
+.subscription-inline-message.success {
+  background: #e8fbe8;
+  border-left: 4px solid #1dbf1d;
+  color: #107510;
+}
+
+.subscription-inline-message.error {
+  background: #ffe8e8;
+  border-left: 4px solid #d93025;
+  color: #a0211a;
+}

@@ -1,97 +1,104 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-function seo_locker_enqueue_assets() {
-    if (!is_single()) return; // Solo en posts
+/**
+ * Cargar assets del front-end (posts/páginas)
+ */
+function seo_locker_frontend_assets()
+{
+    if (!is_singular()) return;
 
-    $js_file  = plugin_dir_path(__DIR__) . 'assets/locker.js';
-    $css_file = plugin_dir_path(__DIR__) . 'assets/locker.css';
+    $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
+    $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
+
+    $css_file = $plugin_dir . 'locker.css';
+
+    $js_file_front  = $plugin_dir . 'front.js';
 
     if (file_exists($css_file)) {
         wp_enqueue_style(
             'seo-locker-css',
-            plugin_dir_url(__DIR__) . 'assets/locker.css',
+            $plugin_url . 'locker.css',
             [],
             filemtime($css_file)
         );
     }
 
-    if (file_exists($js_file)) {
+
+    if (file_exists($js_file_front)) {
         wp_enqueue_script(
-            'seo-locker-js',
-            plugin_dir_url(__DIR__) . 'assets/locker.js',
-            ['jquery'], // opcional: depende si usás $
-            filemtime($js_file),
+            'seocontentlocker-front',
+            $plugin_url . 'front.js',
+            ['jquery'],
+            filemtime($js_file_front),
             true
         );
+    }
 
-        // Pasamos variables al JS con prefijo consistente
-        wp_localize_script('seo-locker-js', 'seocontentlocker_ajax', [
+
+        wp_localize_script('seocontentlocker-front', 'seocontentlocker_ajax', [
             'url'   => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('seocontentlocker_nonce'),
         ]);
     }
-}
-add_action('wp_enqueue_scripts', 'seo_locker_enqueue_assets');
+
+add_action('wp_enqueue_scripts', 'seo_locker_frontend_assets');
 
 
-
-function seocontentlocker_mailchimp_admin_scripts($hook_suffix)
+/**
+ * Cargar assets del admin
+ */
+function seo_locker_admin_assets($hook_suffix)
 {
-    // Solo en admin
-    if (!is_admin()) return;
+    $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
+    $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
 
-    // Solo en la página de ajustes de Mailchimp
-    if ($hook_suffix !== 'seo-locker_page_seocontentlocker-mailchimp') return;
+    if (
+        $hook_suffix !== 'toplevel_page_' . SLUG &&
+        $hook_suffix !== 'seo-content-locker_page_seocontentlocker-mailchimp'
+    ) return;
 
-    $plugin_root = dirname(__DIR__); // un nivel arriba de includes
-
-    $js_file  = $plugin_root . '/assets/locker-mailchimp.js';
-    $js_url   = plugins_url('../assets/locker-mailchimp.js', __FILE__);
-    $css_file = $plugin_root . '/assets/mailchimp-admin.css';
-    $css_url  = plugins_url('../assets/mailchimp-admin.css', __FILE__);
-
-    if (file_exists($js_file)) {
-        wp_enqueue_script(
-            'seocontentlocker-mailchimp-admin',
-            $js_url,
-            ['jquery'],
-            filemtime($js_file),
-            true
-        );
-    }
+    $css_file = $plugin_dir . 'admin-locker.css';
+    $js_file  = $plugin_dir . 'admin-locker.js';
 
     if (file_exists($css_file)) {
-        wp_enqueue_style(
-            'seocontentlocker-mailchimp-admin',
-            $css_url,
-            [],
-            filemtime($css_file)
-        );
+        wp_enqueue_style('seo-locker-admin-css', $plugin_url . 'admin-locker.css', [], filemtime($css_file));
     }
 
-    // Pasar variables JS
-    wp_localize_script('seocontentlocker-mailchimp-admin', 'seocontentlocker_mailchimp', [
+    if (file_exists($js_file)) {
+        wp_enqueue_script('seo-locker-admin-js', $plugin_url . 'admin-locker.js', ['jquery'], filemtime($js_file), true);
+    }
+
+    wp_localize_script('seo-locker-admin-js', 'seocontentlocker_mailchimp', [
         'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('seocontentlocker_mailchimp_nonce'),
+        'nonce'    => wp_create_nonce('seocontentlocker_mailchimp_test')
     ]);
+
+    wp_enqueue_script('jquery-ui-datepicker');
+    wp_enqueue_style('jquery-ui-css', 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css', [], '1.12.1');
+
+    $inline_js = <<<JS
+jQuery(function($){
+    function initSeoLockerDatepicker() {
+        var \$input = $("#new-expire-date");
+        if (!\$input.length || \$input.data('seoDateInit')) return;
+        \$input.datepicker({
+            dateFormat: "dd/mm/yy",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-10:c+10",
+            showButtonPanel: true
+        });
+        \$input.data('seoDateInit', true);
+    }
+    initSeoLockerDatepicker();
+    $(document).on('click', '[onclick*="openEditModal"]', function(){ 
+        setTimeout(initSeoLockerDatepicker, 10); 
+    });
+});
+JS;
+
+    wp_add_inline_script('jquery-ui-datepicker', $inline_js);
 }
-add_action('admin_enqueue_scripts', 'seocontentlocker_mailchimp_admin_scripts');
+add_action('admin_enqueue_scripts', 'seo_locker_admin_assets');
 
-
-add_action('admin_enqueue_scripts', 'seo_locker_admin_custom_styles');
-function seo_locker_admin_custom_styles($hook_suffix) {
-    if ($hook_suffix !== 'toplevel_page_seo-locker') return; // Solo en tu menú principal
-
-    $custom_css = '
-        .toplevel_page_seo-locker table.widefat th:nth-child(1),
-        .toplevel_page_seo-locker table.widefat td:nth-child(1) {
-            width: 50px;
-        }
-        .toplevel_page_seo-locker table.widefat th:nth-child(2),
-        .toplevel_page_seo-locker table.widefat td:nth-child(2) {
-            width: 300px;
-        }
-    ';
-    wp_add_inline_style('wp-admin', $custom_css);
-}

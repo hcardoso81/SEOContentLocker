@@ -14,9 +14,9 @@ add_action('admin_menu', 'seocontentlocker_add_mailchimp_submenu', 20);
 function seocontentlocker_add_mailchimp_submenu()
 {
     add_submenu_page(
-        'seo-locker', // slug del menú principal creado en locker-admin.php
+        'seo-locker', 
         'Mailchimp Integration',
-        'Mailchimp',
+        'Settings Mailchimp',
         'manage_options',
         'seocontentlocker-mailchimp',
         'seocontentlocker_mailchimp_page_callback'
@@ -99,3 +99,44 @@ function seocontentlocker_mailchimp_page_callback()
     </div>
 <?php
 }
+
+
+// --- Test connection ---    
+add_action('wp_ajax_seocontentlocker_mailchimp_test', 'seocontentlocker_mailchimp_test');
+
+function seocontentlocker_mailchimp_test()
+{
+    verify_permission('manage_options', true);
+    validate_nonce('nonce', 'seocontentlocker_mailchimp_test', true);
+
+    $api_key = get_option('seocontentlocker_mc_api_key', '');
+    if (empty($api_key)) wp_send_json_error(__('No API key configured.', 'seocontentlocker'));
+    if (!str_contains($api_key, '-')) wp_send_json_error(__('Invalid API key format (missing -usX suffix).', 'seocontentlocker'));
+
+    $api_key = trim($api_key);
+    $dc = substr($api_key, strrpos($api_key, '-') + 1);
+    $url = "https://{$dc}.api.mailchimp.com/3.0/";
+
+    $response = wp_remote_get($url, [
+        'timeout' => 10,
+        'headers' => [
+            'Authorization' => 'apikey ' . $api_key,
+            'Accept'        => 'application/json'
+        ]
+    ]);
+
+    if (is_wp_error($response)) wp_send_json_error($response->get_error_message());
+
+    $code = wp_remote_retrieve_response_code($response);
+    $data = json_decode(wp_remote_retrieve_body($response), true);
+
+    if ($code === 200) {
+        wp_send_json_success(['message' => __('Connection successful.', 'seocontentlocker'), 'data' => $data]);
+    } else {
+        $msg = $data['detail'] ?? sprintf(__('Connection error. Code: %d', 'seocontentlocker'), $code);
+        wp_send_json_error($msg);
+    }
+}
+
+
+
