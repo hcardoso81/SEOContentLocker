@@ -20,6 +20,7 @@ require_once plugin_dir_path(__FILE__) . 'utils/helper-save-lead.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-mailchimp.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-mailchimp.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-page.php';
+require_once plugin_dir_path(__FILE__) . 'admin/admin-recaptcha.php';
 require_once plugin_dir_path(__FILE__) . 'admin/class-seo-locker-table.php';
 require_once plugin_dir_path(__FILE__) . 'admin/modal-edit-date.php';
 require_once plugin_dir_path(__FILE__) . 'admin/actions.php';

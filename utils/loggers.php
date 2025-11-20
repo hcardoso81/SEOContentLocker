@@ -120,15 +120,17 @@ function log_access($email, $slug)
 }
 
 
-function log_same_ip($ip = '', $email_old = '', $email_new = '')
+function log_same_ip($ip = '', $country = '', $email_old = '', $email_new = '', $slug = '')
 {
     $log_file = WP_CONTENT_DIR . '/seocontentlocker-same-ip.log';
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),
         'ip'      => $ip,
+        'country' => $country,
         'email_old'   => $email_old,
-        'email_new'   => $email_new
+        'email_new'   => $email_new,
+        'slug'    => $slug
     ]) . PHP_EOL;
 
     file_put_contents($log_file, $entry, FILE_APPEND);

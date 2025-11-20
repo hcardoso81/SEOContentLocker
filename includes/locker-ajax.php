@@ -46,6 +46,8 @@ function seocontentlocker_save_lead()
 
     try {
 
+        validateRecaptcha();
+
         // Validaciones previas
         check_lead($email);
         $ip = get_ip();

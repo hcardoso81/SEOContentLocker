@@ -2,8 +2,24 @@
 
 if (!defined('ABSPATH')) exit;
 
-// Clases de tablas
-require_once plugin_dir_path(__FILE__) . 'class-seo-locker-table.php';
+
+add_action('admin_init', 'seocontentlocker_register_recaptcha_settings');
+
+function seocontentlocker_register_recaptcha_settings()
+{
+    // Registrar opciones dentro del grupo
+    register_setting(
+        'seocontentlocker_settings_group',
+        'seocontentlocker_recaptcha_site_key',
+        ['sanitize_callback' => 'sanitize_text_field']
+    );
+
+    register_setting(
+        'seocontentlocker_settings_group',
+        'seocontentlocker_recaptcha_secret_key',
+        ['sanitize_callback' => 'sanitize_text_field']
+    );
+}
 
 add_action('admin_menu', function () {
 
@@ -26,6 +42,16 @@ add_action('admin_menu', function () {
         'manage_options',
         SLUG . '_same_ip',
         'seo_locker_render_same_ip_page'
+    );
+
+    // Submenú: reCAPTCHA
+    add_submenu_page(
+        SLUG,
+        'reCAPTCHA Settings',
+        'reCAPTCHA',
+        'manage_options',
+        SLUG . '_recaptcha',
+        'seo_locker_render_recaptcha_settings_page'
     );
 });
 

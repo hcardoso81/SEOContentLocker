@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) exit;
     <?php
     locker_component('form-email');
     locker_component('form-consent');
+    locker_component('form-recaptcha');
     locker_component('button-submit');
     ?>
   </div>

@@ -36,11 +36,19 @@ function seo_locker_frontend_assets()
     }
 
 
-        wp_localize_script('seocontentlocker-front', 'seocontentlocker_ajax', [
-            'url'   => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('seocontentlocker_nonce'),
-        ]);
-    }
+    wp_localize_script('seocontentlocker-front', 'seocontentlocker_ajax', [
+        'url'   => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('seocontentlocker_nonce'),
+    ]);
+
+    wp_enqueue_script(
+        'google-recaptcha',
+        'https://www.google.com/recaptcha/api.js',
+        [],
+        null,
+        true
+    );
+}
 
 add_action('wp_enqueue_scripts', 'seo_locker_frontend_assets');
 
@@ -101,4 +109,3 @@ JS;
     wp_add_inline_script('jquery-ui-datepicker', $inline_js);
 }
 add_action('admin_enqueue_scripts', 'seo_locker_admin_assets');
-

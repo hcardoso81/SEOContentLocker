@@ -78,16 +78,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const processSuccess = (email) => {
+        clearRecaptchaError();
         storeEmail(email);
         showUnlockedContent();
         updateSubscriptionPageUI("Subscribed!");
     };
 
     const processExpired = (email) => {
+        clearRecaptchaError();
         storeEmail(email);
         showExpiredContent();
         updateSubscriptionPageUI("Expired!");
     };
+
+    const clearRecaptchaError = () => {
+    const errBox = document.getElementById("recaptcha-error");
+    if (errBox) {
+        errBox.textContent = "";
+        errBox.style.display = "none";
+    }
+};
 
 
 
@@ -129,8 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -151,12 +159,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     email,
                     slug: window.location.pathname,
                     nonce: seocontentlocker_ajax.nonce,
+                    "g-recaptcha-response": grecaptcha.getResponse()
                 }),
             });
 
             const { data } = await response.json();
 
+            if (data?.message === "Captcha missing") {
+                const errBox = document.getElementById("recaptcha-error");
+                if (errBox) {
+                    errBox.textContent = "⚠ Please complete the reCAPTCHA.";
+                    errBox.style.display = "block";
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Continue";
+
+                return; // detener flujo
+            }
+
             if (data.status === "success" || data.status === "restored") {
+                clearRecaptchaError();
                 processSuccess(email);
             }
             else if (data.status === "expired") {

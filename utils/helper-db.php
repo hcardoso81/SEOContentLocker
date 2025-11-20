@@ -14,7 +14,7 @@ function db_table_same_ip() {
     return $wpdb->prefix . 'leads_subscriptions_same_ip';
 }
 
-function db_insert_same_ip($ip, $email)
+function db_insert_same_ip($ip, $country, $email, $slug)
 {
     global $wpdb;
     $table = db_table_same_ip();
@@ -22,6 +22,8 @@ function db_insert_same_ip($ip, $email)
     $wpdb->insert($table, [
         'ip'      => $ip,
         'email'   => $email,
+        'country' => $country,
+        'post_slug'    => $slug,
         'created_at' => current_time('mysql')
     ]);
 }
