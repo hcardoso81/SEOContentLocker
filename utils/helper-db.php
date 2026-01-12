@@ -59,7 +59,7 @@ function db_get_lead_by_email($email) {
     );
 }
 
-function db_insert_lead($email, $ip, $country, $slug, $days = 40) {
+function db_insert_lead($email, $ip, $country, $slug, $days= 37) {
     global $wpdb;
 
     $created = new DateTime();
