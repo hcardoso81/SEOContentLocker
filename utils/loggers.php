@@ -1,6 +1,19 @@
 <?php 
 if (!defined('ABSPATH')) exit;
 
+function seocontentlocker_get_log_path($filename)
+{
+    $log_dir = plugin_dir_path(__FILE__) . '../logs/';
+
+    // Crear directorio si no existe
+    if (!file_exists($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
+
+    return $log_dir . $filename;
+}
+
+
 /**
  * Log expired trial or access attempts.
  *
@@ -12,7 +25,7 @@ if (!defined('ABSPATH')) exit;
  */
 function log_expires($email = '')
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-expired.log';
+    $log_file = seocontentlocker_get_log_path('expires.log');
 
     $entry = json_encode([
         'date'  => date('Y-m-d H:i:s'),
@@ -39,7 +52,7 @@ function log_expires($email = '')
  */
 function log_error($error, $context = '', $email = '')
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-errors.log';
+    $log_file = seocontentlocker_get_log_path('errors.log');
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),
@@ -70,7 +83,7 @@ function log_error($error, $context = '', $email = '')
  */
 function log_suscription($email = '', $ip = '', $country = '')
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-suscription.log';
+   $log_file = seocontentlocker_get_log_path('success.log');
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),
@@ -96,7 +109,7 @@ function log_suscription($email = '', $ip = '', $country = '')
  */
 function log_restore($email)
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-restore.log';
+    $log_file = seocontentlocker_get_log_path('restore.log');
 
     $entry = json_encode([
         'date'  => date('Y-m-d H:i:s'),
@@ -108,7 +121,7 @@ function log_restore($email)
 
 function log_access($email, $slug)
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-access.log';
+    $log_file = seocontentlocker_get_log_path('access.log');
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),
@@ -122,7 +135,7 @@ function log_access($email, $slug)
 
 function log_same_ip($ip = '', $country = '', $email_old = '', $email_new = '', $slug = '')
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-same-ip.log';
+    $log_file = seocontentlocker_get_log_path('same-ip.log');
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),
@@ -152,7 +165,7 @@ function log_same_ip($ip = '', $country = '', $email_old = '', $email_new = '', 
  */
 function log_mailchimp_success($email = '', $status = '', $code = 200)
 {
-    $log_file = WP_CONTENT_DIR . '/seocontentlocker-mailchimp-success.log';
+    $log_file = seocontentlocker_get_log_path('mailchimp-success.log');
 
     $entry = json_encode([
         'date'   => date('Y-m-d H:i:s'),

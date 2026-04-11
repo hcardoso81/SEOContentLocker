@@ -12,12 +12,29 @@ class SeoContentLockerNotifier
     {
         $body = $this->formatMessage($message, $context);
 
-        mail(
+        // Hook temporal para capturar errores de wp_mail
+        add_action('wp_mail_failed', function ($wp_error) use ($subject, $context) {
+            log_error(
+                $wp_error,
+                'mail_failed',
+                $context['email'] ?? ''
+            );
+        });
+
+        $result = wp_mail(
             $this->to,
             $subject,
             $body,
             ['Content-Type: text/plain; charset=UTF-8']
         );
+
+        if (!$result) {
+            log_error(
+                'wp_mail returned false',
+                'mail_send',
+                $context['email'] ?? ''
+            );
+        }
     }
 
     private function formatMessage($message, $context)

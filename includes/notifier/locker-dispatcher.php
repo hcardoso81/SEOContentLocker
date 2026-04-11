@@ -7,7 +7,7 @@ class SeoContentLockerDispatcher
 
     public function __construct()
     {
-        $email = get_option('seocontentlocker_report_email');
+        $email = LOCKER_REPORT_EMAIL;
 
         if (!$email) {
             $this->notifier = null;
@@ -19,10 +19,7 @@ class SeoContentLockerDispatcher
 
     public function dispatch($event, $data = [])
     {
-        // 🔕 feature toggle
-        if (!get_option('seocontentlocker_enable_notifications')) {
-            return;
-        }
+        
 
         if (!$this->notifier) return;
 

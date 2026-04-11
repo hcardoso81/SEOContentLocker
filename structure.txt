@@ -37,8 +37,12 @@ seo-content-locker/
 │   └── notifier/
 │       ├── locker-notifier.php
 │       ├── locker-events.php
-│       └── locker-dispatcher.php
-│
+|       |  
+|       └── locker-dispatcher.php
+├── logs/
+│   ├── errors.log
+│   ├── expired.log
+│   ├── access.log
 └── assets/
     ├── locker.css
     ├── front.js
