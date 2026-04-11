@@ -69,6 +69,15 @@ function seocontentlocker_save_lead()
                     'mailchimp_error' => $mcResponse
                 ]
             );
+        } else {
+            seocontentlocker_dispatch_event(
+                SeoContentLockerEvents::LEAD_CREATED_SUCCESS,
+                [
+                    'email' => $email,
+                    'ip' => $ip,
+                    'slug' => $slug
+                ]
+            );
         }
 
         // 👉 recién ahora se responde al frontend
@@ -79,7 +88,6 @@ function seocontentlocker_save_lead()
         ]);
 
         wp_die();
-
     } catch (Exception $e) {
         log_error($e, 'save_lead_ajax', $email);
 
