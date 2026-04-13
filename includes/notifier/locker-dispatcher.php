@@ -34,7 +34,7 @@ class SeoContentLockerDispatcher
             case SeoContentLockerEvents::LEAD_CREATED_SUCCESS:
                 $this->notifier->send(
                     '✅ Lead creado + Mailchimp OK',
-                    'Lead successfully created and synced',
+                    'Nuevo Lead ',
                     $data
                 );
                 break;
@@ -50,7 +50,7 @@ class SeoContentLockerDispatcher
             case SeoContentLockerEvents::LEAD_EXPIRED:
                 $this->notifier->send(
                     '⛔ Lead expirado',
-                    'Expired lead tried to access',
+                    'Usuario expirado quiso iniciar sesion',
                     $data
                 );
                 break;
@@ -66,7 +66,7 @@ class SeoContentLockerDispatcher
             case SeoContentLockerEvents::LEAD_RESTORED:
                 $this->notifier->send(
                     '🔄 Lead restaurado',
-                    'User regained access',
+                    'Usuario registrado restaura session',
                     $data
                 );
                 break;

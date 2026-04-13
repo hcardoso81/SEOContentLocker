@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: SEO Content Locker
-Description: Sistema SEO-friendly para ocultar contenido con cookies y captar leads.
-Version: 1.0
+Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante email. Incluye verificación de estado, restauración de acceso, protección anti-spam (frontend/backend), integración con reCAPTCHA y registro de eventos (logs).
+Version: 1.1
 Author: Hernan Cardoso
 Author URI: https://www.linkedin.com/in/cardosohernan/
 */

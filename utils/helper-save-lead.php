@@ -68,18 +68,19 @@ function check_lead($email, $slug = null)
 
             if (!$slug) {
                 log_restore($email);
+                // 🔥 NUEVO EVENTO (te faltaba)
+                seocontentlocker_dispatch_event(
+                    SeoContentLockerEvents::LEAD_RESTORED,
+                    [
+                        'email' => $email,
+                        'slug'  => $slug
+                    ]
+                );
             } else {
                 log_access($email, $slug);
             }
 
-            // 🔥 NUEVO EVENTO (te faltaba)
-            seocontentlocker_dispatch_event(
-                SeoContentLockerEvents::LEAD_RESTORED,
-                [
-                    'email' => $email,
-                    'slug'  => $slug
-                ]
-            );
+
 
             return [
                 'status' => 'restored',
@@ -140,7 +141,7 @@ function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
         );
 
         return [
-            'status' => 'blocked',
+            'status' => 'expired',
             'message' => 'Multiple leads from same IP'
         ];
     }
