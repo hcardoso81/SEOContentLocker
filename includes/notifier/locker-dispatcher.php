@@ -19,9 +19,15 @@ class SeoContentLockerDispatcher
 
     public function dispatch($event, $data = [])
     {
-        
 
         if (!$this->notifier) return;
+
+        $email = $data['email'] ?? '';
+
+        // 🔥 NUEVO: filtro anti-spam
+        if (!seocontentlocker_should_notify($event, $email)) {
+            return;
+        }
 
         switch ($event) {
 
@@ -53,6 +59,14 @@ class SeoContentLockerDispatcher
                 $this->notifier->send(
                     '🚫 IP duplicada',
                     'Multiple leads from same IP detected',
+                    $data
+                );
+                break;
+
+            case SeoContentLockerEvents::LEAD_RESTORED:
+                $this->notifier->send(
+                    '🔄 Lead restaurado',
+                    'User regained access',
                     $data
                 );
                 break;

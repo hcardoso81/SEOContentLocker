@@ -1,6 +1,21 @@
 <?php 
 if (!defined('ABSPATH')) exit;
 
+
+function scl_write_log($filename, $data)
+{
+    $entry = json_encode(array_merge([
+        'date' => date('Y-m-d H:i:s')
+    ], $data)) . PHP_EOL;
+
+    file_put_contents(
+        seocontentlocker_get_log_path($filename),
+        $entry,
+        FILE_APPEND
+    );
+}
+
+
 function seocontentlocker_get_log_path($filename)
 {
     $log_dir = plugin_dir_path(__FILE__) . '../logs/';
@@ -53,6 +68,7 @@ function log_expires($email = '')
 function log_error($error, $context = '', $email = '')
 {
     $log_file = seocontentlocker_get_log_path('errors.log');
+    
 
     $entry = json_encode([
         'date'    => date('Y-m-d H:i:s'),

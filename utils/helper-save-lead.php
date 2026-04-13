@@ -2,6 +2,7 @@
 
 if (!defined('ABSPATH')) exit;
 
+/*
 function check_lead($email, $slug = null)
 {
     $lead = db_get_lead_by_email($email);
@@ -36,7 +37,60 @@ function check_lead($email, $slug = null)
 
     return true;
 }
+    */
 
+function check_lead($email, $slug = null)
+{
+    $lead = db_get_lead_by_email($email);
+    $now  = new DateTime();
+
+    if ($lead && $lead->expires_at) {
+        $expire_at = new DateTime($lead->expires_at);
+
+        if ($now > $expire_at) {
+            log_expires($email);
+
+            seocontentlocker_dispatch_event(
+                SeoContentLockerEvents::LEAD_EXPIRED,
+                [
+                    'email' => $email,
+                    'slug'  => $slug
+                ]
+            );
+
+            return [
+                'status' => 'expired',
+                'message' => 'Your access period has expired'
+            ];
+        }
+
+        if ($now <= $expire_at) {
+
+            if (!$slug) {
+                log_restore($email);
+            } else {
+                log_access($email, $slug);
+            }
+
+            // 🔥 NUEVO EVENTO (te faltaba)
+            seocontentlocker_dispatch_event(
+                SeoContentLockerEvents::LEAD_RESTORED,
+                [
+                    'email' => $email,
+                    'slug'  => $slug
+                ]
+            );
+
+            return [
+                'status' => 'restored',
+                'message' => 'Access restored. Welcome back!'
+            ];
+        }
+    }
+
+    return null;
+}
+/*
 function check_ip($ip, $email, $insert_same_ip = true)
 {
     $existing_ip = db_get_lead_by_ip($ip);
@@ -46,7 +100,7 @@ function check_ip($ip, $email, $insert_same_ip = true)
             $country = get_country_from_ip($ip);
             $slug  = sanitize_text_field($_POST['slug'] ?? '');
             log_same_ip($ip, $country,  $existing_ip->email, $email, $slug);
-            db_insert_same_ip($ip, $country,$email, $slug);
+            db_insert_same_ip($ip, $country, $email, $slug);
         }
 
         wp_send_json_success([
@@ -57,6 +111,41 @@ function check_ip($ip, $email, $insert_same_ip = true)
     }
 
     return true;
+}
+    */
+
+function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
+{
+    $existing_ip = db_get_lead_by_ip($ip);
+
+    if ($existing_ip) {
+
+        $country = get_country_from_ip($ip);
+        $slug  = sanitize_text_field($_POST['slug'] ?? '');
+
+        if ($insert_same_ip) {
+            log_same_ip($ip, $country, $existing_ip->email, $email, $slug);
+            db_insert_same_ip($ip, $country, $email, $slug);
+        }
+
+        // 🔥 EVENTO
+        seocontentlocker_dispatch_event(
+            SeoContentLockerEvents::SAME_IP_BLOCKED,
+            [
+                'email' => $email,
+                'ip' => $ip,
+                'existing_email' => $existing_ip->email,
+                'slug' => $slug
+            ]
+        );
+
+        return [
+            'status' => 'blocked',
+            'message' => 'Multiple leads from same IP'
+        ];
+    }
+
+    return null;
 }
 
 function save_lead($email)
