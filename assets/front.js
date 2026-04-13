@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const accessLoader = document.getElementById("access-loader");
     const lockedContents = document.querySelectorAll(".content-locked");
 
+    const THANK_YOU_URL = "/thanks-you-newsletter/";
+
 
     // ===============================
     // 🔸 LOADER
@@ -80,6 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const processSuccess = (email) => {
         clearRecaptchaError();
         storeEmail(email);
+
+        // 🔥 NUEVO: si es la subscription page → redirigir
+        if (isPageSsuscription) {
+            window.location.href = THANK_YOU_URL;
+            return;
+        }
+
+        // flujo normal (posts con locker)
         showUnlockedContent();
         updateSubscriptionPageUI("Subscribed!");
     };
@@ -92,12 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const clearRecaptchaError = () => {
-    const errBox = document.getElementById("recaptcha-error");
-    if (errBox) {
-        errBox.textContent = "";
-        errBox.style.display = "none";
-    }
-};
+        const errBox = document.getElementById("recaptcha-error");
+        if (errBox) {
+            errBox.textContent = "";
+            errBox.style.display = "none";
+        }
+    };
 
 
 
@@ -127,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.status === "success" || data.status === "restored") {
                 processSuccess(email);
+                return;
             }
             else if (data.status === "expired") {
                 processExpired(email);
