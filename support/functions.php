@@ -1,7 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-
 function locker_component($name)
 {
     include plugin_dir_path(__FILE__) . "../templates/{$name}.php";
@@ -23,13 +22,6 @@ function validate_nonce($nonce_field, $action_name, $ajax = true)
     return true;
 }
 
-/**
- * Valida y limpia un email
- *
- * @param string $email El email a validar
- * @param bool $ajax Si es true, responde con wp_send_json_error; si es false, hace wp_die()
- * @return string Email validado y saneado
- */
 function validateEmail($email, $ajax = true)
 {
     $email = sanitize_email($email);
@@ -46,13 +38,6 @@ function validateEmail($email, $ajax = true)
     return $email;
 }
 
-
-/**
- * Verifica si el usuario actual tiene los permisos necesarios.
- *
- * @param string $capability (opcional) La capacidad a verificar. Por defecto: 'manage_options'.
- * @param bool $ajax (opcional) Si se está usando dentro de una llamada AJAX. Por defecto: false.
- */
 function verify_permission($capability = 'manage_options', $ajax = false)
 {
     if (!current_user_can($capability)) {

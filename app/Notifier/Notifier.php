@@ -16,8 +16,7 @@ class Notifier
     {
         $body = $this->formatMessage($message, $context);
 
-        // Hook temporal para capturar errores de wp_mail
-        add_action('wp_mail_failed', function ($wp_error) use ($subject, $context) {
+        add_action('wp_mail_failed', function ($wp_error) use ($context) {
             log_error(
                 $wp_error,
                 'mail_failed',

@@ -14,11 +14,10 @@ define('LOCKER_REPORT_EMAIL', "hernan.f.cardoso@gmail.com");
 
 // Archivos principales
 require_once plugin_dir_path(__FILE__) . 'autoload.php';
-require_once plugin_dir_path(__FILE__) . 'utils/loggers.php';
-require_once plugin_dir_path(__FILE__) . 'utils/functions.php';
-require_once plugin_dir_path(__FILE__) . 'utils/helper-ip.php';
-require_once plugin_dir_path(__FILE__) . 'utils/helper-notifier.php';
-require_once plugin_dir_path(__FILE__) . 'utils/helper-mailchimp.php';
+require_once plugin_dir_path(__FILE__) . 'support/loggers.php';
+require_once plugin_dir_path(__FILE__) . 'support/functions.php';
+require_once plugin_dir_path(__FILE__) . 'support/ip.php';
+require_once plugin_dir_path(__FILE__) . 'support/notifier.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-mailchimp.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-page.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-recaptcha.php';

@@ -11,9 +11,9 @@ spl_autoload_register(function ($class) {
         'SeoContentLocker\\Services\\MailchimpService' => 'app/Services/MailchimpService.php',
         'SeoContentLocker\\Admin\\LeadTable' => 'admin/class-seo-locker-table.php',
         'SeoContentLocker\\Admin\\SameIpTable' => 'admin/class-seo-locker-table-same-ip.php',
-        'SeoContentLocker\\Notifier\\Notifier' => 'includes/notifier/locker-notifier.php',
-        'SeoContentLocker\\Notifier\\Events' => 'includes/notifier/locker-events.php',
-        'SeoContentLocker\\Notifier\\Dispatcher' => 'includes/notifier/locker-dispatcher.php',
+        'SeoContentLocker\\Notifier\\Notifier' => 'app/Notifier/Notifier.php',
+        'SeoContentLocker\\Notifier\\Events' => 'app/Notifier/Events.php',
+        'SeoContentLocker\\Notifier\\Dispatcher' => 'app/Notifier/Dispatcher.php',
     ];
 
     if (!isset($classMap[$class])) {

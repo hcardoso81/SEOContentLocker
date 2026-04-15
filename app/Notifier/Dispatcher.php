@@ -21,18 +21,17 @@ class Dispatcher
 
     public function dispatch($event, $data = [])
     {
-
-        if (!$this->notifier) return;
+        if (!$this->notifier) {
+            return;
+        }
 
         $email = $data['email'] ?? '';
 
-        // 🔥 NUEVO: filtro anti-spam
         if (!seocontentlocker_should_notify($event, $email)) {
             return;
         }
 
         switch ($event) {
-
             case Events::LEAD_CREATED_SUCCESS:
                 $this->notifier->send(
                     '✅ Lead creado + Mailchimp OK',
