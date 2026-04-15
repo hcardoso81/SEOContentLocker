@@ -206,9 +206,10 @@ class SEO_Locker_Table extends WP_List_Table
         $offset = ($current_page - 1) * $per_page;
 
         // 🔥 Ahora todo viene del helper
-        $total_items = db_count_leads($search);
+        $repository = seocontentlocker_lead_repository();
+        $total_items = $repository->count($search);
 
-        $this->items = db_get_leads(
+        $this->items = $repository->search(
             $orderby,
             $order,
             $per_page,

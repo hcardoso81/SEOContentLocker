@@ -37,7 +37,7 @@ function seocontentlocker_expire_lead_handler()
 
     $id = intval($_GET['id'] ?? 0);
     check_admin_referer('expire_' . $id);
-    db_expire_lead_now($id);
+    seocontentlocker_lead_repository()->expireNow($id);
 
     seocontentlocker_build_redirect_params('expired');
 }
@@ -48,7 +48,7 @@ function seocontentlocker_delete_lead_handler()
 
     $id = intval($_GET['id'] ?? 0);
     check_admin_referer('delete_' . $id);
-    db_delete_lead($id);
+    seocontentlocker_lead_repository()->delete($id);
 
     seocontentlocker_build_redirect_params('deleted');
 }
@@ -62,7 +62,7 @@ function seocontentlocker_handle_bulk_actions()
     if ($action === 'bulk_delete') {
         check_admin_referer('bulk-leads');
         $ids = array_map('intval', $_REQUEST['lead'] ?? []);
-        db_bulk_delete_leads($ids);
+        seocontentlocker_lead_repository()->bulkDelete($ids);
         seocontentlocker_build_redirect_params('bulk_deleted');
     }
 }
@@ -86,7 +86,7 @@ function seocontentlocker_update_expire_date_handler()
     $mysql_datetime = $dateObj->format('Y-m-d 23:59:59');
 
     // Ejecutar update real
-    db_update_expire_date($id, $mysql_datetime);
+    seocontentlocker_lead_repository()->updateExpireDate($id, $mysql_datetime);
 
     seocontentlocker_build_redirect_params('updated_date');
 }
@@ -97,15 +97,7 @@ function seocontentlocker_export_csv_handler()
         verify_permission('manage_options');
         check_admin_referer('seocontentlocker_export_csv');
 
-
-        global $wpdb;
-        $table = db_table_leads();
-
-        $results = $wpdb->get_results(
-            "SELECT id, email, ip, country, post_slug, status, created_at, expires_at 
-             FROM $table 
-             ORDER BY created_at DESC"
-        );
+        $results = seocontentlocker_lead_repository()->exportRows();
 
         if (empty($results)) {
             wp_die(__('No leads found for export.', 'seocontentlocker'));

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 /*
 function check_lead($email, $slug = null)
 {
-    $lead = db_get_lead_by_email($email);
+    $lead = seocontentlocker_lead_repository()->findByEmail($email);
     $now  = new DateTime();
 
     if ($lead && $lead->expires_at) {
@@ -117,7 +117,7 @@ function check_ip($ip, $email, $insert_same_ip = true)
 
 function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
 {
-    $existing_ip = db_get_lead_by_ip($ip);
+    $existing_ip = seocontentlocker_lead_repository()->findByIp($ip);
 
     if ($existing_ip) {
 
@@ -125,7 +125,7 @@ function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
 
         if ($insert_same_ip) {
             log_same_ip($ip, $country, $existing_ip->email, $email, $slug);
-            db_insert_same_ip($ip, $country, $email, $slug);
+            seocontentlocker_same_ip_repository()->insert($ip, $country, $email, $slug);
         }
 
         // 🔥 EVENTO
@@ -154,7 +154,7 @@ function save_lead($email, $slug, $ip = null)
     $country = get_country_from_ip($ip);
 
     log_suscription($email, $ip, $country);
-    db_insert_lead($email, $ip, $country, $slug);
+    seocontentlocker_lead_repository()->insert($email, $ip, $country, $slug);
 }
 
 function validateRecaptcha($recaptcha)

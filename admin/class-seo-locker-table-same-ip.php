@@ -78,9 +78,7 @@ class SEO_Locker_Table_Same_IP extends WP_List_Table
      */
     public function prepare_items()
     {
-        global $wpdb;
-
-        $table = $wpdb->prefix . 'leads_subscriptions_same_ip';
+        $repository = seocontentlocker_same_ip_repository();
 
         $columns  = $this->get_columns();
         $hidden   = [];
@@ -92,12 +90,9 @@ class SEO_Locker_Table_Same_IP extends WP_List_Table
         $offset      = ($current_page - 1) * $per_page;
 
         // Total de items
-        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table");
+        $total_items = $repository->count();
 
-        // Obtener items con objetos stdClass
-        $this->items = $wpdb->get_results(
-            "SELECT * FROM $table ORDER BY created_at DESC LIMIT $per_page OFFSET $offset"
-        );
+        $this->items = $repository->paginate($per_page, $offset);
 
         // Paginación
         $this->set_pagination_args([

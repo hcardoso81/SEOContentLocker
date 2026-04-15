@@ -20,6 +20,8 @@ require_once plugin_dir_path(__FILE__) . 'utils/helper-ip.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-save-lead.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-notifier.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-mailchimp.php';
+require_once plugin_dir_path(__FILE__) . 'app/Repositories/LeadRepository.php';
+require_once plugin_dir_path(__FILE__) . 'app/Repositories/SameIpRepository.php';
 require_once plugin_dir_path(__FILE__) . 'app/Services/LeadAccessService.php';
 require_once plugin_dir_path(__FILE__) . 'app/Services/RecaptchaService.php';
 require_once plugin_dir_path(__FILE__) . 'app/Services/MailchimpService.php';
