@@ -1,120 +1,157 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const isPageSsuscription = document.getElementById("my-subscription-form-page");
+    const pageForm = document.getElementById("my-subscription-form-page");
+    const modalForm = document.getElementById("lead-capture-form");
+    const isPageSubscription = Boolean(pageForm);
 
     const overlay = document.getElementById("lead-overlay");
-
-    const submitBtn = document.getElementById("lead-submit");
-    const emailInput = document.getElementById("lead-email");
-    const consentCheckbox = document.getElementById("lead-consent");
     const closeBtn = document.querySelector(".modal-close");
+    const accessLoader = document.getElementById("access-loader");
 
     const readMoreButtons = document.querySelectorAll(".read-more-locked");
-    const trialExpiredNotices = document.querySelectorAll(".trial-expired-notice")
-    const subscriptionNotices = document.querySelectorAll(".confirm-email-notice")
-
-    const accessLoader = document.getElementById("access-loader");
+    const trialExpiredNotices = document.querySelectorAll(".trial-expired-notice");
+    const subscriptionNotices = document.querySelectorAll(".confirm-email-notice");
     const lockedContents = document.querySelectorAll(".content-locked");
 
     const THANK_YOU_URL = "/thanks-you-newsletter/";
+    const EMAIL_STORAGE_KEY = "wpscl_e";
+    const DEFAULT_SUBMIT_TEXT = "Continue";
+    const LOADING_SUBMIT_TEXT = "Loading...";
 
+    const getFields = (form) => {
+        if (!form) return null;
 
-    // ===============================
-    // 🔸 LOADER
-    // ===============================
+        return {
+            form,
+            submitBtn: form.querySelector("#lead-submit"),
+            emailInput: form.querySelector("#lead-email"),
+            consentCheckbox: form.querySelector("#lead-consent"),
+            recaptchaError: form.querySelector("#recaptcha-error"),
+        };
+    };
+
+    const modalFields = getFields(modalForm);
+    const pageFields = getFields(pageForm);
+
     const showLoader = (text) => {
         if (!accessLoader) return;
+
         accessLoader.style.display = "flex";
-        const msg = accessLoader.querySelector("p");
-        if (msg) msg.textContent = text;
+        const message = accessLoader.querySelector("p");
+        if (message) {
+            message.textContent = text;
+        }
     };
 
     const hideLoader = () => {
         if (!accessLoader) return;
+
         accessLoader.style.transition = "opacity 0.3s ease";
         accessLoader.style.opacity = "0";
+
         setTimeout(() => {
             accessLoader.style.display = "none";
             accessLoader.style.opacity = "1";
         }, 300);
     };
 
+    const clearRecaptchaError = (fields) => {
+        if (!fields?.recaptchaError) return;
 
-    // ===============================
-    // FUNCIONES (declararlas PRIMERO)
-    // ===============================
-
-    const showUnlockedContent = () => {
-        readMoreButtons.forEach(btn => btn.style.display = "none");
-        lockedContents.forEach(div => div.style.display = "block");
-
-        if (!isPageSsuscription) overlay.style.display = "none";
+        fields.recaptchaError.textContent = "";
+        fields.recaptchaError.style.display = "none";
     };
 
-    const showExpiredContent = () => {
-        trialExpiredNotices.forEach(n => n.style.display = "block");
-        readMoreButtons.forEach(btn => btn.style.display = "none");
+    const showRecaptchaError = (fields, message) => {
+        if (!fields?.recaptchaError) return;
 
-        if (!isPageSsuscription) overlay.style.display = "none";
+        fields.recaptchaError.textContent = message;
+        fields.recaptchaError.style.display = "block";
+    };
+
+    const setSubmitState = (fields, disabled, text) => {
+        if (!fields?.submitBtn) return;
+
+        fields.submitBtn.disabled = disabled;
+        fields.submitBtn.textContent = text;
+    };
+
+    const validateInput = (fields) => {
+        if (!fields?.submitBtn || !fields.emailInput || !fields.consentCheckbox) return;
+
+        const email = fields.emailInput.value.trim();
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        fields.submitBtn.disabled = !(fields.consentCheckbox.checked && isValidEmail);
     };
 
     const storeEmail = (email) => {
-        localStorage.setItem("wpscl_e", email);
+        localStorage.setItem(EMAIL_STORAGE_KEY, email);
     };
 
-    const updateSubscriptionPageUI = (statusText) => {
-        if (!isPageSsuscription) return;
-
-        submitBtn.textContent = statusText;
-
-        if (statusText === "Subscribed!" || statusText === "Restored!") {
-            subscriptionNotices.forEach(n => n.style.display = "block");
+    const hideOverlay = () => {
+        if (overlay) {
+            overlay.style.display = "none";
         }
     };
 
+    const showUnlockedContent = () => {
+        readMoreButtons.forEach((button) => {
+            button.style.display = "none";
+        });
 
-    const validateInput = () => {
-        if (!submitBtn || !emailInput || !consentCheckbox) return;
-        const email = emailInput.value.trim();
-        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        submitBtn.disabled = !(consentCheckbox.checked && isValidEmail);
+        lockedContents.forEach((content) => {
+            content.style.display = "block";
+        });
+
+        if (!isPageSubscription) {
+            hideOverlay();
+        }
     };
 
-    const processSuccess = (email) => {
-        clearRecaptchaError();
+    const showExpiredContent = () => {
+        trialExpiredNotices.forEach((notice) => {
+            notice.style.display = "block";
+        });
+
+        readMoreButtons.forEach((button) => {
+            button.style.display = "none";
+        });
+
+        if (!isPageSubscription) {
+            hideOverlay();
+        }
+    };
+
+    const updateSubscriptionPageUI = (fields, statusText) => {
+        if (!isPageSubscription || !fields?.submitBtn) return;
+
+        fields.submitBtn.textContent = statusText;
+
+        if (statusText === "Subscribed!" || statusText === "Restored!") {
+            subscriptionNotices.forEach((notice) => {
+                notice.style.display = "block";
+            });
+        }
+    };
+
+    const processSuccess = (fields, email) => {
+        clearRecaptchaError(fields);
         storeEmail(email);
 
-        // 🔥 NUEVO: si es la subscription page → redirigir
-        if (isPageSsuscription) {
+        if (isPageSubscription) {
             window.location.href = THANK_YOU_URL;
             return;
         }
 
-        // flujo normal (posts con locker)
         showUnlockedContent();
-        updateSubscriptionPageUI("Subscribed!");
+        updateSubscriptionPageUI(fields, "Subscribed!");
     };
 
-    const processExpired = (email) => {
-        clearRecaptchaError();
+    const processExpired = (fields, email) => {
+        clearRecaptchaError(fields);
         storeEmail(email);
         showExpiredContent();
-        updateSubscriptionPageUI("Expired!");
+        updateSubscriptionPageUI(fields, "Expired!");
     };
-
-    const clearRecaptchaError = () => {
-        const errBox = document.getElementById("recaptcha-error");
-        if (errBox) {
-            errBox.textContent = "";
-            errBox.style.display = "none";
-        }
-    };
-
-
-
-    // ===============================
-    // SUBMITS
-    // ===============================
-
 
     const verifyLeadStatus = async (email) => {
         showLoader("Checking subscription status...");
@@ -136,13 +173,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const { data } = await response.json();
 
             if (data.status === "success" || data.status === "restored") {
-                processSuccess(email);
+                processSuccess(modalFields, email);
                 return;
             }
-            else if (data.status === "expired") {
-                processExpired(email);
-            }
 
+            if (data.status === "expired") {
+                processExpired(modalFields, email);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -150,14 +187,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (fields, event) => {
         event.preventDefault();
 
-        const email = emailInput.value.trim();
-        if (!email) return alert("Email invalid");
+        if (!fields?.emailInput || !fields.submitBtn) return;
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Loading...";
+        const email = fields.emailInput.value.trim();
+        if (!email) {
+            fields.emailInput.focus();
+            return;
+        }
+
+        clearRecaptchaError(fields);
+        setSubmitState(fields, true, LOADING_SUBMIT_TEXT);
 
         try {
             const response = await fetch(seocontentlocker_ajax.url, {
@@ -177,55 +219,72 @@ document.addEventListener("DOMContentLoaded", () => {
             const { data } = await response.json();
 
             if (data?.message === "Captcha missing") {
-                const errBox = document.getElementById("recaptcha-error");
-                if (errBox) {
-                    errBox.textContent = "⚠ Please complete the reCAPTCHA.";
-                    errBox.style.display = "block";
-                }
-
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Continue";
-
-                return; // detener flujo
+                showRecaptchaError(fields, "Please complete the reCAPTCHA.");
+                validateInput(fields);
+                fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
+                return;
             }
 
             if (data.status === "success" || data.status === "restored") {
-                clearRecaptchaError();
-                processSuccess(email);
-            }
-            else if (data.status === "expired") {
-                processExpired(email);
+                processSuccess(fields, email);
+                return;
             }
 
+            if (data.status === "expired") {
+                processExpired(fields, email);
+                return;
+            }
+
+            validateInput(fields);
+            fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
         } catch (err) {
             console.error(err);
+            validateInput(fields);
+            fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
         }
     };
 
+    [modalFields, pageFields].forEach((fields) => {
+        if (!fields?.form) return;
 
-    // ===============================
-    // EVENTOS (después de las funciones)
-    // ===============================
+        if (fields.consentCheckbox) {
+            fields.consentCheckbox.addEventListener("change", () => validateInput(fields));
+        }
 
-    if (consentCheckbox) consentCheckbox.addEventListener("change", validateInput);
-    if (emailInput) emailInput.addEventListener("input", validateInput);
-    if (submitBtn) submitBtn.addEventListener("click", handleSubmit);
-    if (closeBtn && overlay) closeBtn.addEventListener("click", () => overlay.style.display = "none");
+        if (fields.emailInput) {
+            fields.emailInput.addEventListener("input", () => validateInput(fields));
+        }
 
-    // Delegación de eventos para locked-btn
-    document.addEventListener("click", (e) => {
-        if (e.target && e.target.id === "locked-btn") {
-            console.log('click en locked-btn');
-            if (overlay) overlay.style.display = "flex"; // o "block"
+        fields.form.addEventListener("submit", (event) => handleSubmit(fields, event));
+        validateInput(fields);
+    });
+
+    if (closeBtn && overlay) {
+        closeBtn.addEventListener("click", hideOverlay);
+    }
+
+    if (overlay) {
+        overlay.addEventListener("click", (event) => {
+            if (event.target === overlay || event.target.classList.contains("overlay-backdrop")) {
+                hideOverlay();
+            }
+        });
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && overlay && overlay.style.display !== "none") {
+            hideOverlay();
         }
     });
 
-    // ===============================
-    // 🔸 FLUJO PRINCIPAL AL CARGAR
-    // ===============================
-    if (!isPageSsuscription) {
+    document.addEventListener("click", (event) => {
+        if (event.target && event.target.id === "locked-btn" && overlay) {
+            overlay.style.display = "flex";
+        }
+    });
 
-        const email = localStorage.getItem("wpscl_e");
+    if (!isPageSubscription) {
+        const email = localStorage.getItem(EMAIL_STORAGE_KEY);
         if (email) {
             verifyLeadStatus(email);
         }

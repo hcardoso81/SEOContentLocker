@@ -1,10 +1,7 @@
 /* Overlay general */
 #lead-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,10 +11,7 @@
 /* Fondo difuminado */
 .overlay-backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(5px);
 }
@@ -25,57 +19,30 @@
 /* Modal */
 .overlay-modal {
   position: relative;
-  background: white;
+  width: min(900px, 90%);
+  max-height: calc(100vh - 32px);
+  background: #fff;
   border-radius: 16px;
-  max-width: 900px;
-  width: 90%;
   z-index: 10000;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  align-items: center;
   overflow: hidden;
 }
 
-/* Franja superior con botón cerrar */
+/* Franja superior con boton cerrar */
 .modal-header {
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   background-color: #4F81BD;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   padding: 0 10px;
   box-sizing: border-box;
-  margin-bottom: 16px;
 }
 
-.overlay-modal h2 {
-  font-size: 28px;
-  line-height: 1.3;
-  margin-bottom: 16px;
-  color: #4F81BD;
-  font-weight: 700;
-  text-align: center;
-}
-
-.overlay-modal p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 16px;
-  color: #333;
-  text-align: center;
-}
-
-.overlay-modal .trial-note {
-  font-size: 14px;
-  line-height: 1.4;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-/* Botón cerrar modal */
-button.modal-close {
+.modal-close {
   background: none !important;
   border: none !important;
   color: white !important;
@@ -89,66 +56,112 @@ button.modal-close {
   box-shadow: none !important;
 }
 
-button.modal-close:hover,
-button.modal-close:focus {
+.modal-close:hover,
+.modal-close:focus {
   color: #2f5b8a !important;
-  /* tono más oscuro */
 }
 
-/* Títulos y párrafos */
+.locker-public-shell {
+  width: 100%;
+  padding: 24px 32px 32px;
+  box-sizing: border-box;
+}
+
+.locker-public-shell-modal {
+  overflow-y: auto;
+}
+
 .overlay-modal h2,
-.overlay-modal p {
-  text-align: center;
-  margin: 0 0 1rem 0;
+.subscription-form-wrapper h2 {
+  margin: 0 0 16px;
+  font-size: 28px;
+  line-height: 1.3;
   color: #4F81BD;
-  font-weight: bold;
+  font-weight: 700;
+  text-align: center;
+}
+
+.locker-copy p,
+.subscription-form-wrapper .subscription-text {
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  text-align: center;
+}
+
+.overlay-modal .trial-note {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #555;
+  text-align: center;
+}
+
+.locker-public-form {
+  width: 100%;
+}
+
+.overlay-modal .locker-public-form {
+  text-align: center;
 }
 
 /* Input email */
-.overlay-modal input[type="email"] {
+.overlay-modal input[type="email"],
+.subscription-form-wrapper input[type="email"] {
   width: 100%;
   max-width: 700px;
   padding: 10px;
-  margin: 0px auto 1rem auto;
+  margin: 0 auto 1rem;
   display: block;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
 
-.overlay-modal input[type="email"]:focus {
+.overlay-modal input[type="email"]:focus,
+.subscription-form-wrapper input[type="email"]:focus {
   outline: none;
   border: 2px solid #4F81BD;
 }
 
 /* Consentimiento */
-.consent-text {
+.overlay-modal .consent-text,
+.subscription-form-wrapper .consent-text {
   display: flex;
   align-items: flex-start;
   width: 100%;
   max-width: 700px;
-  margin: 0 auto 1.5rem auto;
+  margin: 0 auto 1.5rem;
   font-size: 14px;
   line-height: 1.4;
   color: #333;
   text-align: left;
 }
 
-.consent-text input[type="checkbox"] {
-  margin-right: 6px;
+.overlay-modal .consent-text input[type="checkbox"],
+.subscription-form-wrapper .consent-text input[type="checkbox"] {
+  margin-right: 8px;
   margin-top: 4px;
+  flex: 0 0 auto;
 }
 
-.consent-text a {
+.overlay-modal .consent-text a,
+.subscription-form-wrapper .consent-text a {
   color: #4F81BD;
   text-decoration: underline;
   font-weight: bold;
 }
 
-/* Botón submit */
-.overlay-modal button#lead-submit {
-  padding: 12px 24px;
+/* Boton submit */
+.overlay-modal button#lead-submit,
+.subscription-form-wrapper button#lead-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
   background: #4F81BD;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -157,30 +170,33 @@ button.modal-close:focus {
   margin-bottom: 1rem;
 }
 
-.overlay-modal button#lead-submit:hover:enabled {
+.overlay-modal button#lead-submit:hover:enabled,
+.subscription-form-wrapper button#lead-submit:hover:enabled {
   background: #2f5b8a;
 }
 
-.overlay-modal button#lead-submit:disabled {
+.overlay-modal button#lead-submit:disabled,
+.subscription-form-wrapper button#lead-submit:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
 
-
-.overlay-modal .recaptcha-wrapper {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
+.overlay-modal .recaptcha-wrapper,
+.subscription-form-wrapper .recaptcha-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
 }
 
-.overlay-modal .recaptcha-error {
-    margin-top: 8px;
-    color: #d93025; /* rojo estilo Google */
-    font-size: 14px;
+.overlay-modal .recaptcha-error,
+.subscription-form-wrapper .recaptcha-error {
+  margin-top: 8px;
+  color: #d93025;
+  font-size: 14px;
+  text-align: center;
 }
 
-
-/* Contenido detrás bloqueado */
+/* Contenido detras bloqueado */
 .page-content.blurred {
   filter: blur(3px);
   pointer-events: none;
@@ -195,10 +211,6 @@ button.modal-close:focus {
 .read-more-locked {
   text-align: center;
   margin: 2rem 0;
-  display: block;
-  /* o flex si quieres */
-  gap: 12px;
-  /* si usas flex */
 }
 
 .read-more-locked a,
@@ -208,53 +220,28 @@ button.modal-close:focus {
 
 .locked-btn {
   display: inline-block;
-  /* funciona para <a> y <button> */
   padding: 12px 28px;
-  /* mismo tamaño que los botones del formulario */
   background: #4F81BD;
   color: #fff;
-  /* texto blanco */
   border: none;
   border-radius: 8px;
   font-weight: bold;
   font-family: Arial, sans-serif;
   cursor: pointer;
   text-decoration: none !important;
-  /* quita el subrayado para <a> */
   text-align: center;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
 .locked-btn:hover {
   background: #2f5b8a;
-  /* fondo más oscuro al hover */
   color: #fff;
-  /* mantiene el texto en blanco */
   text-decoration: none;
-  /* asegura que no se subraye */
 }
-
-button.modal-close {
-  all: unset;
-  cursor: pointer;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 1;
-  transition: color 0.3s ease;
-}
-
-button.modal-close:hover,
-button.modal-close:focus {
-  color: #2f5b8a;
-}
-
-
 
 #access-loader {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 99999;
   width: 100%;
   height: 100%;
@@ -319,10 +306,8 @@ button.modal-close:focus {
   }
 }
 
-
 .trial-expired-notice {
   display: none;
-  /* rojo */
   color: #fff;
   margin-top: 16px;
   font-weight: bold;
@@ -336,10 +321,8 @@ button.modal-close:focus {
 }
 
 .trial-expired-notice .locked-separator {
- color: #444;;
-  
+  color: #444;
 }
-
 
 .trial-expired-notice a {
   color: #fff !important;
@@ -353,9 +336,7 @@ button.modal-close:focus {
 
 .confirm-email-notice {
   display: none;
-  /* por defecto se oculta, JS lo mostrará */
   background-color: #4F81BD;
-  /* azul nuevo */
   color: #fff;
   padding: 12px;
   border-radius: 8px;
@@ -372,100 +353,18 @@ button.modal-close:focus {
 
 .confirm-email-notice a:hover {
   color: #d0e0f0;
-  /* un azul más claro para hover */
 }
 
-
-
-
-/****Form****/
+/**** Form ****/
 
 .subscription-form-wrapper {
   max-width: 700px;
   margin: 2rem auto;
-  padding: 2rem;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   text-align: center;
   font-family: Arial, sans-serif;
-}
-
-.subscription-form-wrapper h2 {
-  color: #4F81BD!important;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.subscription-form-wrapper .subscription-text {
-  font-size: 15px;
-  color: #555;
-  margin-bottom: 1.5rem;
-}
-
-.subscription-form-wrapper input[type="email"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-.subscription-form-wrapper input[type="email"]:focus {
-  border: 2px solid #4F81BD;
-  outline: none;
-}
-
-.subscription-form-wrapper .consent-text {
-  display: flex;
-  align-items: flex-start;
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-.subscription-form-wrapper .consent-text input[type="checkbox"] {
-  margin-right: 8px;
-  margin-top: 2px;
-}
-
-.subscription-form-wrapper .consent-text a {
-  color: #4F81BD;
-  text-decoration: underline;
-  font-weight: bold;
-}
-
-.subscription-form-wrapper .recaptcha-wrapper {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.subscription-form-wrapper .recaptcha-error {
-    margin-top: 8px;
-    color: #d93025; /* rojo estilo Google */
-    font-size: 14px;
-}
-
-.subscription-form-wrapper button {
-  padding: 12px 28px;
-  background: #4F81BD;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.subscription-form-wrapper button:hover:enabled {
-  background: #2f5b8a;
-}
-
-.subscription-form-wrapper button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
 }
 
 #form-message-page {
@@ -475,8 +374,6 @@ button.modal-close:focus {
   font-weight: bold;
   display: block;
 }
-
-
 
 /**** .subscription-inline-message ***/
 
@@ -504,4 +401,72 @@ button.modal-close:focus {
   background: #ffe8e8;
   border-left: 4px solid #d93025;
   color: #a0211a;
+}
+
+@media (max-width: 767px) {
+  #lead-overlay {
+    align-items: flex-start;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .overlay-modal {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+    border-radius: 14px;
+  }
+
+  .locker-public-shell {
+    padding: 18px 16px 20px;
+  }
+
+  .locker-public-shell-modal {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .overlay-modal h2,
+  .subscription-form-wrapper h2 {
+    font-size: 24px;
+  }
+
+  .locker-copy p,
+  .subscription-form-wrapper .subscription-text {
+    font-size: 15px;
+  }
+
+  .overlay-modal .consent-text,
+  .subscription-form-wrapper .consent-text {
+    font-size: 13px;
+  }
+
+  .overlay-modal button#lead-submit,
+  .subscription-form-wrapper button#lead-submit,
+  .locked-btn {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .read-more-locked a,
+  .read-more-locked button {
+    margin: 8px 0;
+  }
+
+  .overlay-modal .recaptcha-wrapper,
+  .subscription-form-wrapper .recaptcha-wrapper {
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .overlay-modal .g-recaptcha,
+  .subscription-form-wrapper .g-recaptcha {
+    transform: scale(0.92);
+    transform-origin: center top;
+  }
+
+  .loader-modal {
+    width: min(320px, calc(100vw - 32px));
+    padding: 1.5rem;
+  }
 }

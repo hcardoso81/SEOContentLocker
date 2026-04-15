@@ -6,25 +6,31 @@ if (!defined('ABSPATH')) exit;
   <div class="overlay-backdrop"></div>
   <div class="overlay-modal">
     <div class="modal-header">
-      <button class="modal-close">&times;</button>
+      <button class="modal-close" type="button" aria-label="<?php esc_attr_e('Close modal', 'seo-locker'); ?>">&times;</button>
     </div>
 
-    <h2>Unlock Full Access</h2>
+    <div class="locker-public-shell locker-public-shell-modal">
+      <h2>Unlock Full Access</h2>
 
-    <p>We create professional content for traders, based on intermarket, macro, technical, quant, and flow analysis.</p>
-    <p>Welcome aboard — enjoy the ride.</p>
+      <div class="locker-copy">
+        <p>We create professional content for traders, based on intermarket, macro, technical, quant, and flow analysis.</p>
+        <p>Welcome aboard — enjoy the ride.</p>
+      </div>
 
-    <p class="trial-note">
-      If you have already registered before, please enter your email again to recover your session.
-    </p>
-    <?php
-    locker_component('form-email');
-    locker_component('form-consent');
-    locker_component('form-recaptcha');
-    locker_component('button-submit');
-    ?>
+      <p class="trial-note">
+        If you have already registered before, please enter your email again to recover your session.
+      </p>
+
+      <form id="lead-capture-form" class="locker-public-form" novalidate>
+        <?php
+        locker_component('form-email');
+        locker_component('form-consent');
+        locker_component('form-recaptcha');
+        locker_component('button-submit');
+        ?>
+      </form>
+    </div>
   </div>
 </div>
-<?php 
-  locker_component('check-loader');
-?>
+
+<?php locker_component('check-loader'); ?>
