@@ -4,19 +4,21 @@ if (!defined('ABSPATH')) exit;
 
 function seocontentlocker_build_redirect_params($success_param)
 {
+    $request = wp_unslash($_REQUEST);
+
     $params = [
         'page'    => SLUG,
-        'orderby' => $_GET['orderby'] ?? 'created_at',
-        'order'   => $_GET['order'] ?? 'desc',
+        'orderby' => sanitize_text_field($request['orderby'] ?? 'created_at'),
+        'order'   => strtolower(sanitize_text_field($request['order'] ?? 'desc')) === 'asc' ? 'asc' : 'desc',
         $success_param => 1,
     ];
 
-    if (!empty($_GET['s'])) {
-        $params['s'] = sanitize_text_field($_GET['s']);
+    if (!empty($request['s'])) {
+        $params['s'] = sanitize_text_field($request['s']);
     }
 
-    if (!empty($_GET['paged'])) {
-        $params['paged'] = intval($_GET['paged']);
+    if (!empty($request['paged'])) {
+        $params['paged'] = intval($request['paged']);
     }
 
     wp_redirect(add_query_arg($params, admin_url('admin.php')));
@@ -34,6 +36,7 @@ function seocontentlocker_expire_lead_handler()
     verify_permission('manage_options');
 
     $id = intval($_GET['id'] ?? 0);
+    check_admin_referer('expire_' . $id);
     db_expire_lead_now($id);
 
     seocontentlocker_build_redirect_params('expired');
@@ -44,6 +47,7 @@ function seocontentlocker_delete_lead_handler()
     verify_permission('manage_options');
 
     $id = intval($_GET['id'] ?? 0);
+    check_admin_referer('delete_' . $id);
     db_delete_lead($id);
 
     seocontentlocker_build_redirect_params('deleted');
@@ -51,9 +55,12 @@ function seocontentlocker_delete_lead_handler()
 
 function seocontentlocker_handle_bulk_actions()
 {
+    verify_permission('manage_options');
+
     $action = $_REQUEST['action'] ?? ($_REQUEST['action2'] ?? '');
 
     if ($action === 'bulk_delete') {
+        check_admin_referer('bulk-leads');
         $ids = array_map('intval', $_REQUEST['lead'] ?? []);
         db_bulk_delete_leads($ids);
         seocontentlocker_build_redirect_params('bulk_deleted');
@@ -63,6 +70,7 @@ function seocontentlocker_handle_bulk_actions()
 function seocontentlocker_update_expire_date_handler()
 {
     verify_permission('manage_options');
+    check_admin_referer('update_expire_date');
 
     $id = intval($_POST['id'] ?? 0);
     $date = sanitize_text_field($_POST['new_expire_date']);
@@ -87,8 +95,7 @@ function seocontentlocker_export_csv_handler()
 {
     try {
         verify_permission('manage_options');
-
-        // Verificar nonce
+        check_admin_referer('seocontentlocker_export_csv');
 
 
         global $wpdb;

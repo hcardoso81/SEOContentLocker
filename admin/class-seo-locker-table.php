@@ -21,20 +21,18 @@ class SEO_Locker_Table extends WP_List_Table
     {
         if ($which === 'top') {
             $export_url = wp_nonce_url(
-                admin_url('admin-post.php?action=seocontentlocker_export_csv'),
+                add_query_arg([
+                    'action'  => 'seocontentlocker_export_csv',
+                    'orderby' => $_GET['orderby'] ?? 'created_at',
+                    'order'   => $_GET['order'] ?? 'desc',
+                    's'       => $_GET['s'] ?? '',
+                    'paged'   => $_GET['paged'] ?? 1,
+                ], admin_url('admin-post.php')),
                 'seocontentlocker_export_csv'
             );
 ?>
             <div class="alignleft actions">
-                <a href="<?php echo esc_url(
-                                add_query_arg([
-                                    'action'  => 'seocontentlocker_export_csv',
-                                    'orderby' => $_GET['orderby'] ?? 'created_at',
-                                    'order'   => $_GET['order'] ?? 'desc',
-                                    's'       => $_GET['s'] ?? '',
-                                    'paged'   => $_GET['paged'] ?? 1,
-                                ], admin_url('admin-post.php'))
-                            ); ?>" class="button">
+                <a href="<?php echo esc_url($export_url); ?>" class="button">
                     Exportar CSV
                 </a>
             </div>

@@ -122,7 +122,6 @@ function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
     if ($existing_ip) {
 
         $country = get_country_from_ip($ip);
-        $slug  = sanitize_text_field($_POST['slug'] ?? '');
 
         if ($insert_same_ip) {
             log_same_ip($ip, $country, $existing_ip->email, $email, $slug);
@@ -149,22 +148,17 @@ function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
     return null;
 }
 
-function save_lead($email)
+function save_lead($email, $slug, $ip = null)
 {
-    $slug  = sanitize_text_field($_POST['slug'] ?? '');
-    $ip    = get_ip();
+    $ip = $ip ?: get_ip();
     $country = get_country_from_ip($ip);
 
     log_suscription($email, $ip, $country);
     db_insert_lead($email, $ip, $country, $slug);
 }
 
-function validateRecaptcha()
+function validateRecaptcha($recaptcha)
 {
-
-
-    $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
-
     if (empty($recaptcha)) {
         wp_send_json_error([
             'message' => 'Captcha missing'

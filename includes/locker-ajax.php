@@ -34,8 +34,11 @@ function seocontentlocker_check_lead_status()
 
 function seocontentlocker_check_lead_status()
 {
+    validate_nonce('nonce', 'seocontentlocker_nonce', true);
+
     $email = validateEmail($_POST['email'] ?? '', true);
     $slug  = sanitize_text_field($_POST['slug'] ?? '');
+    $ip    = get_ip();
 
     try {
 
@@ -44,7 +47,7 @@ function seocontentlocker_check_lead_status()
             wp_send_json_success($leadResult);
         }
 
-        $ipResult = check_ip(get_ip(), $email, false);
+        $ipResult = check_ip($ip, $email, $slug, false);
         if ($ipResult) {
             wp_send_json_success($ipResult);
         }
@@ -77,20 +80,22 @@ add_action('wp_ajax_seocontentlocker_save_lead', 'seocontentlocker_save_lead');
 
 function seocontentlocker_save_lead()
 {
+    validate_nonce('nonce', 'seocontentlocker_nonce', true);
+
     $email = validateEmail($_POST['email'] ?? '', true);
     $slug  = sanitize_text_field($_POST['slug'] ?? '');
+    $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
+    $ip = get_ip();
 
     try {
 
-        validateRecaptcha();
+        validateRecaptcha($recaptcha);
 
         // Validaciones previas
-        $leadResult = check_lead($email);
+        $leadResult = check_lead($email, $slug);
         if ($leadResult) {
             wp_send_json_success($leadResult);
         }
-
-        $ip = get_ip();
 
         $ipResult = check_ip($ip, $email, $slug);
         if ($ipResult) {
@@ -98,7 +103,7 @@ function seocontentlocker_save_lead()
         }
 
         // Guardar lead local
-        save_lead($email);
+        save_lead($email, $slug, $ip);
 
         // 🔥 SUSCRIPCIÓN MAILCHIMP (antes de enviar JSON)
         $mcResponse = seocontentlocker_mailchimp_subscribe($email, $slug);

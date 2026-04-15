@@ -86,6 +86,7 @@ function seo_locker_render_main_page()
 
         <form method="get">
             <input type="hidden" name="page" value="<?= esc_attr(SLUG) ?>" />
+            <?php wp_nonce_field('bulk-leads'); ?>
             <?php
             if (!empty($_GET['orderby'])) {
                 echo '<input type="hidden" name="orderby" value="' . esc_attr($_GET['orderby']) . '" />';

@@ -11,6 +11,7 @@ function new_seo_locker_edit_date_modal()
             <form method="POST" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="edit-date-form">
                 <input type="hidden" name="action" value="seocontentlocker_update_expire_date">
                 <input type="hidden" name="id" id="edit-lead-id">
+                <?php wp_nonce_field('update_expire_date'); ?>
 
                 <!-- 🔥 Mantener parámetros de contexto -->
                 <input type="hidden" name="page" value="<?php echo esc_attr(SLUG); ?>">
