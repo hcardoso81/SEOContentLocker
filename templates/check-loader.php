@@ -4,6 +4,6 @@
   <div class="loader-backdrop"></div>
   <div class="loader-modal">
     <div class="spinner"></div>
-    <p></p>
+    <p>Reviewing your access…</p>
   </div>
 </div>
