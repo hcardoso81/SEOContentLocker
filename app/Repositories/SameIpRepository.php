@@ -1,4 +1,6 @@
 <?php
+namespace SeoContentLocker\Repositories;
+
 if (!defined('ABSPATH')) exit;
 
 class SameIpRepository

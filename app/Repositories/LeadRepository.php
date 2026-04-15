@@ -1,4 +1,8 @@
 <?php
+namespace SeoContentLocker\Repositories;
+
+use DateTime;
+
 if (!defined('ABSPATH')) exit;
 
 class LeadRepository

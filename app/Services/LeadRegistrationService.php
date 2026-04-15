@@ -1,32 +1,40 @@
 <?php
+namespace SeoContentLocker\Services;
+
+use SeoContentLocker\Repositories\LeadRepository;
+
 if (!defined('ABSPATH')) exit;
 
 class LeadRegistrationService
 {
     private $recaptchaService;
     private $mailchimpService;
+    private $leadRepository;
+    private $accessService;
 
-    public function __construct($recaptchaService = null, $mailchimpService = null)
+    public function __construct($recaptchaService = null, $mailchimpService = null, $leadRepository = null, $accessService = null)
     {
         $this->recaptchaService = $recaptchaService ?: new RecaptchaService();
         $this->mailchimpService = $mailchimpService ?: new MailchimpService();
+        $this->leadRepository = $leadRepository ?: new LeadRepository();
+        $this->accessService = $accessService ?: new LeadAccessService($this->leadRepository);
     }
 
     public function register($email, $slug, $ip, $recaptchaToken)
     {
         $this->recaptchaService->validate($recaptchaToken);
 
-        $leadResult = check_lead($email, $slug);
+        $leadResult = $this->accessService->checkLead($email, $slug);
         if ($leadResult) {
             return $leadResult;
         }
 
-        $ipResult = check_ip($ip, $email, $slug);
+        $ipResult = $this->accessService->checkIp($ip, $email, $slug);
         if ($ipResult) {
             return $ipResult;
         }
 
-        save_lead($email, $slug, $ip);
+        $this->saveLead($email, $slug, $ip);
 
         $mcResponse = $this->mailchimpService->subscribe($email, $slug);
 
@@ -41,7 +49,7 @@ class LeadRegistrationService
             );
 
             seocontentlocker_dispatch_event(
-                SeoContentLockerEvents::MAILCHIMP_FAILED,
+                \SeoContentLockerEvents::MAILCHIMP_FAILED,
                 [
                     'email' => $email,
                     'ip' => $ip,
@@ -51,7 +59,7 @@ class LeadRegistrationService
             );
         } else {
             seocontentlocker_dispatch_event(
-                SeoContentLockerEvents::LEAD_CREATED_SUCCESS,
+                \SeoContentLockerEvents::LEAD_CREATED_SUCCESS,
                 [
                     'email' => $email,
                     'ip' => $ip,
@@ -65,5 +73,15 @@ class LeadRegistrationService
             'status'  => $mcResponse['success'] ? 'success' : 'mailchimp_failed',
             'mc'      => $mcResponse,
         ];
+    }
+
+    public function saveLead($email, $slug, $ip = null)
+    {
+        $ip = $ip ?: get_ip();
+        $country = get_country_from_ip($ip);
+
+        log_suscription($email, $ip, $country);
+
+        return $this->leadRepository->insert($email, $ip, $country, $slug);
     }
 }

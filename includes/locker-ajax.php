@@ -18,7 +18,7 @@ function seocontentlocker_check_lead_status()
     $ip    = get_ip();
 
     try {
-        $service = new LeadAccessService();
+        $service = new \SeoContentLocker\Services\LeadAccessService();
         $result = $service->checkStatus($email, $slug, $ip);
 
         wp_send_json_success($result);
@@ -53,7 +53,7 @@ function seocontentlocker_save_lead()
     $ip = get_ip();
 
     try {
-        $service = new LeadRegistrationService();
+        $service = new \SeoContentLocker\Services\LeadRegistrationService();
         $result = $service->register($email, $slug, $ip, $recaptcha);
 
         wp_send_json_success($result);

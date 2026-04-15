@@ -15,9 +15,7 @@ define('LOCKER_REPORT_EMAIL', "hernan.f.cardoso@gmail.com");
 // Archivos principales
 require_once plugin_dir_path(__FILE__) . 'utils/loggers.php';
 require_once plugin_dir_path(__FILE__) . 'utils/functions.php';
-require_once plugin_dir_path(__FILE__) . 'utils/helper-db.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-ip.php';
-require_once plugin_dir_path(__FILE__) . 'utils/helper-save-lead.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-notifier.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-mailchimp.php';
 require_once plugin_dir_path(__FILE__) . 'app/Repositories/LeadRepository.php';

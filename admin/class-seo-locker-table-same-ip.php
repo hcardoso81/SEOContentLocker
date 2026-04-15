@@ -78,7 +78,7 @@ class SEO_Locker_Table_Same_IP extends WP_List_Table
      */
     public function prepare_items()
     {
-        $repository = seocontentlocker_same_ip_repository();
+        $repository = new \SeoContentLocker\Repositories\SameIpRepository();
 
         $columns  = $this->get_columns();
         $hidden   = [];

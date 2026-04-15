@@ -34,10 +34,11 @@ add_action('load-toplevel_page_' . SLUG, 'seocontentlocker_handle_bulk_actions')
 function seocontentlocker_expire_lead_handler()
 {
     verify_permission('manage_options');
+    $repository = new \SeoContentLocker\Repositories\LeadRepository();
 
     $id = intval($_GET['id'] ?? 0);
     check_admin_referer('expire_' . $id);
-    seocontentlocker_lead_repository()->expireNow($id);
+    $repository->expireNow($id);
 
     seocontentlocker_build_redirect_params('expired');
 }
@@ -45,10 +46,11 @@ function seocontentlocker_expire_lead_handler()
 function seocontentlocker_delete_lead_handler()
 {
     verify_permission('manage_options');
+    $repository = new \SeoContentLocker\Repositories\LeadRepository();
 
     $id = intval($_GET['id'] ?? 0);
     check_admin_referer('delete_' . $id);
-    seocontentlocker_lead_repository()->delete($id);
+    $repository->delete($id);
 
     seocontentlocker_build_redirect_params('deleted');
 }
@@ -56,13 +58,14 @@ function seocontentlocker_delete_lead_handler()
 function seocontentlocker_handle_bulk_actions()
 {
     verify_permission('manage_options');
+    $repository = new \SeoContentLocker\Repositories\LeadRepository();
 
     $action = $_REQUEST['action'] ?? ($_REQUEST['action2'] ?? '');
 
     if ($action === 'bulk_delete') {
         check_admin_referer('bulk-leads');
         $ids = array_map('intval', $_REQUEST['lead'] ?? []);
-        seocontentlocker_lead_repository()->bulkDelete($ids);
+        $repository->bulkDelete($ids);
         seocontentlocker_build_redirect_params('bulk_deleted');
     }
 }
@@ -71,6 +74,7 @@ function seocontentlocker_update_expire_date_handler()
 {
     verify_permission('manage_options');
     check_admin_referer('update_expire_date');
+    $repository = new \SeoContentLocker\Repositories\LeadRepository();
 
     $id = intval($_POST['id'] ?? 0);
     $date = sanitize_text_field($_POST['new_expire_date']);
@@ -86,7 +90,7 @@ function seocontentlocker_update_expire_date_handler()
     $mysql_datetime = $dateObj->format('Y-m-d 23:59:59');
 
     // Ejecutar update real
-    seocontentlocker_lead_repository()->updateExpireDate($id, $mysql_datetime);
+    $repository->updateExpireDate($id, $mysql_datetime);
 
     seocontentlocker_build_redirect_params('updated_date');
 }
@@ -96,8 +100,9 @@ function seocontentlocker_export_csv_handler()
     try {
         verify_permission('manage_options');
         check_admin_referer('seocontentlocker_export_csv');
+        $repository = new \SeoContentLocker\Repositories\LeadRepository();
 
-        $results = seocontentlocker_lead_repository()->exportRows();
+        $results = $repository->exportRows();
 
         if (empty($results)) {
             wp_die(__('No leads found for export.', 'seocontentlocker'));

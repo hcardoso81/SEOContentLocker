@@ -1,4 +1,6 @@
 <?php
+namespace SeoContentLocker\Services;
+
 if (!defined('ABSPATH')) exit;
 
 class MailchimpService
