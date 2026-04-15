@@ -2,6 +2,7 @@
 namespace SeoContentLocker\Services;
 
 use SeoContentLocker\Repositories\LeadRepository;
+use SeoContentLocker\Notifier\Events;
 
 if (!defined('ABSPATH')) exit;
 
@@ -49,7 +50,7 @@ class LeadRegistrationService
             );
 
             seocontentlocker_dispatch_event(
-                \SeoContentLockerEvents::MAILCHIMP_FAILED,
+                Events::MAILCHIMP_FAILED,
                 [
                     'email' => $email,
                     'ip' => $ip,
@@ -59,7 +60,7 @@ class LeadRegistrationService
             );
         } else {
             seocontentlocker_dispatch_event(
-                \SeoContentLockerEvents::LEAD_CREATED_SUCCESS,
+                Events::LEAD_CREATED_SUCCESS,
                 [
                     'email' => $email,
                     'ip' => $ip,

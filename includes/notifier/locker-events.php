@@ -1,5 +1,9 @@
 <?php
-class SeoContentLockerEvents
+namespace SeoContentLocker\Notifier;
+
+if (!defined('ABSPATH')) exit;
+
+class Events
 {
     const LEAD_CREATED_SUCCESS = 'lead_created_success';
     const MAILCHIMP_FAILED = 'mailchimp_failed';

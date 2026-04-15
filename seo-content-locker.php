@@ -13,26 +13,17 @@ define('SLUG', 'seo-locker');
 define('LOCKER_REPORT_EMAIL', "hernan.f.cardoso@gmail.com");
 
 // Archivos principales
+require_once plugin_dir_path(__FILE__) . 'autoload.php';
 require_once plugin_dir_path(__FILE__) . 'utils/loggers.php';
 require_once plugin_dir_path(__FILE__) . 'utils/functions.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-ip.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-notifier.php';
 require_once plugin_dir_path(__FILE__) . 'utils/helper-mailchimp.php';
-require_once plugin_dir_path(__FILE__) . 'app/Repositories/LeadRepository.php';
-require_once plugin_dir_path(__FILE__) . 'app/Repositories/SameIpRepository.php';
-require_once plugin_dir_path(__FILE__) . 'app/Services/LeadAccessService.php';
-require_once plugin_dir_path(__FILE__) . 'app/Services/RecaptchaService.php';
-require_once plugin_dir_path(__FILE__) . 'app/Services/MailchimpService.php';
-require_once plugin_dir_path(__FILE__) . 'app/Services/LeadRegistrationService.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-mailchimp.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-page.php';
 require_once plugin_dir_path(__FILE__) . 'admin/admin-recaptcha.php';
-require_once plugin_dir_path(__FILE__) . 'admin/class-seo-locker-table.php';
 require_once plugin_dir_path(__FILE__) . 'admin/modal-edit-date.php';
 require_once plugin_dir_path(__FILE__) . 'admin/actions.php';
-require_once plugin_dir_path(__FILE__) . 'includes/notifier/locker-notifier.php';
-require_once plugin_dir_path(__FILE__) . 'includes/notifier/locker-events.php';
-require_once plugin_dir_path(__FILE__) . 'includes/notifier/locker-dispatcher.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-shortcode.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-assets.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';

@@ -1,5 +1,9 @@
 <?php
-class SeoContentLockerNotifier
+namespace SeoContentLocker\Notifier;
+
+if (!defined('ABSPATH')) exit;
+
+class Notifier
 {
     private $to;
 

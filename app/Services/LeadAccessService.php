@@ -2,6 +2,7 @@
 namespace SeoContentLocker\Services;
 
 use DateTime;
+use SeoContentLocker\Notifier\Events;
 use SeoContentLocker\Repositories\LeadRepository;
 use SeoContentLocker\Repositories\SameIpRepository;
 
@@ -51,7 +52,7 @@ class LeadAccessService
             log_expires($email);
 
             seocontentlocker_dispatch_event(
-                \SeoContentLockerEvents::LEAD_EXPIRED,
+                Events::LEAD_EXPIRED,
                 [
                     'email' => $email,
                     'slug'  => $slug,
@@ -68,7 +69,7 @@ class LeadAccessService
             log_restore($email);
 
             seocontentlocker_dispatch_event(
-                \SeoContentLockerEvents::LEAD_RESTORED,
+                Events::LEAD_RESTORED,
                 [
                     'email' => $email,
                     'slug'  => $slug,
@@ -100,7 +101,7 @@ class LeadAccessService
         }
 
         seocontentlocker_dispatch_event(
-            \SeoContentLockerEvents::SAME_IP_BLOCKED,
+            Events::SAME_IP_BLOCKED,
             [
                 'email' => $email,
                 'ip' => $ip,

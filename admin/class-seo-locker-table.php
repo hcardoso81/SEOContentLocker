@@ -1,12 +1,13 @@
 <?php
+namespace SeoContentLocker\Admin;
 
 if (!defined('ABSPATH')) exit;
 
-if (!class_exists('WP_List_Table')) {
+if (!class_exists('\WP_List_Table')) {
     require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
-class SEO_Locker_Table extends WP_List_Table
+class LeadTable extends \WP_List_Table
 {
     public function __construct()
     {

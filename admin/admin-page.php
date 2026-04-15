@@ -60,7 +60,7 @@ add_action('admin_menu', function () {
 // ======================================================
 function seo_locker_render_main_page()
 {
-    $table = new SEO_Locker_Table();
+    $table = new \SeoContentLocker\Admin\LeadTable();
     $table->prepare_items();
 
     // Mensajes de notificación
@@ -120,12 +120,7 @@ add_action('admin_footer', 'seo_locker_edit_date_modal_conditional');
 // ======================================================
 function seo_locker_render_same_ip_page()
 {
-    // Carga condicional de la clase
-    if (!class_exists('SEO_Locker_Table_Same_IP')) {
-        require_once plugin_dir_path(__FILE__) . 'class-seo-locker-table-same-ip.php';
-    }
-
-    $table = new SEO_Locker_Table_Same_IP();
+    $table = new \SeoContentLocker\Admin\SameIpTable();
     $table->prepare_items();
 
     echo '<div class="wrap"><h1>Leads Same IP</h1>';

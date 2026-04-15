@@ -1,7 +1,9 @@
 <?php
+namespace SeoContentLocker\Notifier;
+
 if (!defined('ABSPATH')) exit;
 
-class SeoContentLockerDispatcher
+class Dispatcher
 {
     private $notifier;
 
@@ -14,7 +16,7 @@ class SeoContentLockerDispatcher
             return;
         }
 
-        $this->notifier = new SeoContentLockerNotifier($email);
+        $this->notifier = new Notifier($email);
     }
 
     public function dispatch($event, $data = [])
@@ -31,7 +33,7 @@ class SeoContentLockerDispatcher
 
         switch ($event) {
 
-            case SeoContentLockerEvents::LEAD_CREATED_SUCCESS:
+            case Events::LEAD_CREATED_SUCCESS:
                 $this->notifier->send(
                     '✅ Lead creado + Mailchimp OK',
                     'Nuevo Lead ',
@@ -39,7 +41,7 @@ class SeoContentLockerDispatcher
                 );
                 break;
 
-            case SeoContentLockerEvents::MAILCHIMP_FAILED:
+            case Events::MAILCHIMP_FAILED:
                 $this->notifier->send(
                     '⚠️ Mailchimp falló',
                     'Lead saved but Mailchimp subscription failed',
@@ -47,7 +49,7 @@ class SeoContentLockerDispatcher
                 );
                 break;
 
-            case SeoContentLockerEvents::LEAD_EXPIRED:
+            case Events::LEAD_EXPIRED:
                 $this->notifier->send(
                     '⛔ Lead expirado',
                     'Usuario expirado quiso iniciar sesion',
@@ -55,7 +57,7 @@ class SeoContentLockerDispatcher
                 );
                 break;
 
-            case SeoContentLockerEvents::SAME_IP_BLOCKED:
+            case Events::SAME_IP_BLOCKED:
                 $this->notifier->send(
                     '🚫 IP duplicada',
                     'Multiple leads from same IP detected',
@@ -63,7 +65,7 @@ class SeoContentLockerDispatcher
                 );
                 break;
 
-            case SeoContentLockerEvents::LEAD_RESTORED:
+            case Events::LEAD_RESTORED:
                 $this->notifier->send(
                     '🔄 Lead restaurado',
                     'Usuario registrado restaura session',
