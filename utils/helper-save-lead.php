@@ -1,151 +1,83 @@
 <?php
-
 if (!defined('ABSPATH')) exit;
 
-/*
 function check_lead($email, $slug = null)
 {
     $lead = seocontentlocker_lead_repository()->findByEmail($email);
-    $now  = new DateTime();
+    $now = new DateTime();
 
-    if ($lead && $lead->expires_at) {
-        // convertir string → DateTime
-        $expire_at = new DateTime($lead->expires_at);
-
-        if ($now > $expire_at) {
-            log_expires($email);
-            wp_send_json_success([
-                'message' => 'Your access period has expired',
-                'status'  => 'expired',
-            ]);
-            wp_die();
-        }
-
-        if ($now <= $expire_at) {
-            if (!$slug) {
-                log_restore($email);
-            } else {
-                log_access($email, $slug);
-            }
-            wp_send_json_success([
-                'message' => 'Access restored. Welcome back!',
-                'status'  => 'restored',
-            ]);
-            wp_die();
-        }
+    if (!$lead || !$lead->expires_at) {
+        return null;
     }
 
-    return true;
-}
-    */
+    $expireAt = new DateTime($lead->expires_at);
 
-function check_lead($email, $slug = null)
-{
-    $lead = db_get_lead_by_email($email);
-    $now  = new DateTime();
+    if ($now > $expireAt) {
+        log_expires($email);
 
-    if ($lead && $lead->expires_at) {
-        $expire_at = new DateTime($lead->expires_at);
-
-        if ($now > $expire_at) {
-            log_expires($email);
-
-            seocontentlocker_dispatch_event(
-                SeoContentLockerEvents::LEAD_EXPIRED,
-                [
-                    'email' => $email,
-                    'slug'  => $slug
-                ]
-            );
-
-            return [
-                'status' => 'expired',
-                'message' => 'Your access period has expired'
-            ];
-        }
-
-        if ($now <= $expire_at) {
-
-            if (!$slug) {
-                log_restore($email);
-                // 🔥 NUEVO EVENTO (te faltaba)
-                seocontentlocker_dispatch_event(
-                    SeoContentLockerEvents::LEAD_RESTORED,
-                    [
-                        'email' => $email,
-                        'slug'  => $slug
-                    ]
-                );
-            } else {
-                log_access($email, $slug);
-            }
-
-
-
-            return [
-                'status' => 'restored',
-                'message' => 'Access restored. Welcome back!'
-            ];
-        }
-    }
-
-    return null;
-}
-/*
-function check_ip($ip, $email, $insert_same_ip = true)
-{
-    $existing_ip = db_get_lead_by_ip($ip);
-
-    if ($existing_ip) {
-        if ($insert_same_ip) {
-            $country = get_country_from_ip($ip);
-            $slug  = sanitize_text_field($_POST['slug'] ?? '');
-            log_same_ip($ip, $country,  $existing_ip->email, $email, $slug);
-            db_insert_same_ip($ip, $country, $email, $slug);
-        }
-
-        wp_send_json_success([
-            'message' => 'Your access period has expired',
-            'status'  => 'expired',
-        ]);
-        wp_die();
-    }
-
-    return true;
-}
-    */
-
-function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
-{
-    $existing_ip = seocontentlocker_lead_repository()->findByIp($ip);
-
-    if ($existing_ip) {
-
-        $country = get_country_from_ip($ip);
-
-        if ($insert_same_ip) {
-            log_same_ip($ip, $country, $existing_ip->email, $email, $slug);
-            seocontentlocker_same_ip_repository()->insert($ip, $country, $email, $slug);
-        }
-
-        // 🔥 EVENTO
         seocontentlocker_dispatch_event(
-            SeoContentLockerEvents::SAME_IP_BLOCKED,
+            SeoContentLockerEvents::LEAD_EXPIRED,
             [
                 'email' => $email,
-                'ip' => $ip,
-                'existing_email' => $existing_ip->email,
-                'slug' => $slug
+                'slug'  => $slug,
             ]
         );
 
         return [
             'status' => 'expired',
-            'message' => 'Multiple leads from same IP'
+            'message' => 'Your access period has expired',
         ];
     }
 
-    return null;
+    if (!$slug) {
+        log_restore($email);
+
+        seocontentlocker_dispatch_event(
+            SeoContentLockerEvents::LEAD_RESTORED,
+            [
+                'email' => $email,
+                'slug'  => $slug,
+            ]
+        );
+    } else {
+        log_access($email, $slug);
+    }
+
+    return [
+        'status' => 'restored',
+        'message' => 'Access restored. Welcome back!',
+    ];
+}
+
+function check_ip($ip, $email, $slug = null, $insert_same_ip = true)
+{
+    $existingIp = seocontentlocker_lead_repository()->findByIp($ip);
+
+    if (!$existingIp) {
+        return null;
+    }
+
+    $country = get_country_from_ip($ip);
+
+    if ($insert_same_ip) {
+        log_same_ip($ip, $country, $existingIp->email, $email, $slug);
+        seocontentlocker_same_ip_repository()->insert($ip, $country, $email, $slug);
+    }
+
+    seocontentlocker_dispatch_event(
+        SeoContentLockerEvents::SAME_IP_BLOCKED,
+        [
+            'email' => $email,
+            'ip' => $ip,
+            'existing_email' => $existingIp->email,
+            'slug' => $slug,
+        ]
+    );
+
+    return [
+        'status' => 'expired',
+        'message' => 'Multiple leads from same IP',
+    ];
 }
 
 function save_lead($email, $slug, $ip = null)
@@ -154,22 +86,20 @@ function save_lead($email, $slug, $ip = null)
     $country = get_country_from_ip($ip);
 
     log_suscription($email, $ip, $country);
-    seocontentlocker_lead_repository()->insert($email, $ip, $country, $slug);
+
+    return seocontentlocker_lead_repository()->insert($email, $ip, $country, $slug);
 }
 
 function validateRecaptcha($recaptcha)
 {
     if (empty($recaptcha)) {
         wp_send_json_error([
-            'message' => 'Captcha missing'
+            'message' => 'Captcha missing',
         ]);
         wp_die();
     }
 
-    // SECRET KEY guardada en opciones
     $secret = get_option('seocontentlocker_recaptcha_secret_key');
-
-    // Llamado a Google
     $verify = wp_remote_get("https://www.google.com/recaptcha/api/siteverify?secret={$secret}&response={$recaptcha}");
 
     if (is_wp_error($verify)) {
@@ -181,7 +111,7 @@ function validateRecaptcha($recaptcha)
 
     if (empty($verified->success)) {
         wp_send_json_error([
-            'message' => 'Captcha invalid'
+            'message' => 'Captcha invalid',
         ]);
         wp_die();
     }
