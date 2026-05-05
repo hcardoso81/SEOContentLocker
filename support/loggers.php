@@ -10,8 +10,8 @@ function scl_write_log($filename, $data)
 
 function seocontentlocker_get_log_path($filename)
 {
-    $upload = wp_upload_dir();
-    $base = trailingslashit($upload['basedir']) . 'seo-content-locker-logs/';
+    $filename = basename($filename);
+    $base = trailingslashit(plugin_dir_path(dirname(__FILE__))) . 'logs/';
 
     if (!file_exists($base)) {
         wp_mkdir_p($base);
