@@ -35,7 +35,9 @@ class LeadRegistrationService
             return $ipResult;
         }
 
-        $this->saveLead($email, $slug, $ip);
+        $country = get_country_from_ip($ip);
+
+        $this->saveLead($email, $slug, $ip, $country);
 
         $mcResponse = $this->mailchimpService->subscribe($email, $slug);
 
@@ -54,6 +56,7 @@ class LeadRegistrationService
                 [
                     'email' => $email,
                     'ip' => $ip,
+                    'country' => $country,
                     'slug' => $slug,
                     'mailchimp_error' => $mcResponse,
                 ]
@@ -64,6 +67,7 @@ class LeadRegistrationService
                 [
                     'email' => $email,
                     'ip' => $ip,
+                    'country' => $country,
                     'slug' => $slug,
                 ]
             );
@@ -76,10 +80,10 @@ class LeadRegistrationService
         ];
     }
 
-    public function saveLead($email, $slug, $ip = null)
+    public function saveLead($email, $slug, $ip = null, $country = null)
     {
         $ip = $ip ?: get_ip();
-        $country = get_country_from_ip($ip);
+        $country = $country !== null ? $country : get_country_from_ip($ip);
 
         log_suscription($email, $ip, $country);
 

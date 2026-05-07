@@ -105,6 +105,7 @@ class LeadAccessService
             [
                 'email' => $email,
                 'ip' => $ip,
+                'country' => $country,
                 'existing_email' => $existingIp->email,
                 'slug' => $slug,
             ]

@@ -38,6 +38,18 @@ function validateEmail($email, $ajax = true)
     return $email;
 }
 
+function seocontentlocker_normalize_slug($slug)
+{
+    $slug = sanitize_text_field($slug);
+    $path = wp_parse_url($slug, PHP_URL_PATH);
+
+    if ($path !== null && $path !== false) {
+        $slug = $path;
+    }
+
+    return trim(untrailingslashit($slug), "/ \t\n\r\0\x0B");
+}
+
 function verify_permission($capability = 'manage_options', $ajax = false)
 {
     if (!current_user_can($capability)) {

@@ -48,9 +48,22 @@ class Notifier
         ];
 
         foreach ($context as $key => $value) {
-            $lines[] = strtoupper($key) . ": " . print_r($value, true);
+            if ($key === 'ip') {
+                continue;
+            }
+
+            $lines[] = $this->formatContextKey($key) . ": " . print_r($value, true);
         }
 
         return implode("\n", $lines);
+    }
+
+    private function formatContextKey($key)
+    {
+        $labels = [
+            'country' => 'PAIS',
+        ];
+
+        return $labels[$key] ?? strtoupper($key);
     }
 }
