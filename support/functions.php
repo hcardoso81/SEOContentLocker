@@ -50,6 +50,22 @@ function seocontentlocker_normalize_slug($slug)
     return trim(untrailingslashit($slug), "/ \t\n\r\0\x0B");
 }
 
+function seocontentlocker_request_slug($slug)
+{
+    $slug = seocontentlocker_normalize_slug($slug);
+
+    if ($slug) {
+        return $slug;
+    }
+
+    $referer = wp_get_referer();
+    if (!$referer && !empty($_SERVER['HTTP_REFERER'])) {
+        $referer = esc_url_raw(wp_unslash($_SERVER['HTTP_REFERER']));
+    }
+
+    return seocontentlocker_normalize_slug($referer);
+}
+
 function verify_permission($capability = 'manage_options', $ajax = false)
 {
     if (!current_user_can($capability)) {

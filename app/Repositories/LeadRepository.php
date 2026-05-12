@@ -72,6 +72,18 @@ class LeadRepository
         );
     }
 
+    public function updatePostSlug($id, $slug)
+    {
+        global $wpdb;
+        return $wpdb->update(
+            $this->tableName(),
+            ['post_slug' => $slug],
+            ['id' => $id],
+            ['%s'],
+            ['%d']
+        );
+    }
+
     public function expireNow($id)
     {
         global $wpdb;

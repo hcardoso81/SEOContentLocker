@@ -14,7 +14,7 @@ function seocontentlocker_check_lead_status()
     validate_nonce('nonce', 'seocontentlocker_nonce', true);
 
     $email = validateEmail($_POST['email'] ?? '', true);
-    $slug  = seocontentlocker_normalize_slug($_POST['slug'] ?? '');
+    $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
     $ip    = get_ip();
 
     try {
@@ -48,7 +48,7 @@ function seocontentlocker_save_lead()
     validate_nonce('nonce', 'seocontentlocker_nonce', true);
 
     $email = validateEmail($_POST['email'] ?? '', true);
-    $slug  = seocontentlocker_normalize_slug($_POST['slug'] ?? '');
+    $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
     $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
     $ip = get_ip();
 

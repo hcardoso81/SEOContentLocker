@@ -21,7 +21,7 @@ class LeadAccessService
 
     public function checkStatus($email, $slug, $ip)
     {
-        $leadResult = $this->checkLead($email, $slug);
+        $leadResult = $this->checkLead($email, $slug, true);
         if ($leadResult) {
             return $leadResult;
         }
@@ -37,7 +37,7 @@ class LeadAccessService
         ];
     }
 
-    public function checkLead($email, $slug = null)
+    public function checkLead($email, $slug = null, $isStatusCheck = false)
     {
         $lead = $this->leadRepository->findByEmail($email);
         $now = new DateTime();
@@ -47,32 +47,35 @@ class LeadAccessService
         }
 
         $expireAt = new DateTime($lead->expires_at);
+        $leadSlug = $this->resolveLeadSlug($lead, $slug);
+        $this->saveMissingLeadSlug($lead, $slug);
 
         if ($now > $expireAt) {
-            log_expires($email);
+            log_expires($email, $leadSlug);
 
             seocontentlocker_dispatch_event(
                 Events::LEAD_EXPIRED,
                 [
                     'email' => $email,
-                    'slug'  => $slug,
+                    'slug'  => $leadSlug,
                 ]
             );
 
             return [
                 'status' => 'expired',
                 'message' => 'Your access period has expired',
+                'slug' => $leadSlug,
             ];
         }
 
-        if (!$slug) {
-            log_restore($email);
+        if ($isStatusCheck || !$slug) {
+            log_restore($email, $leadSlug);
 
             seocontentlocker_dispatch_event(
                 Events::LEAD_RESTORED,
                 [
                     'email' => $email,
-                    'slug'  => $slug,
+                    'slug'  => $leadSlug,
                 ]
             );
         } else {
@@ -82,7 +85,26 @@ class LeadAccessService
         return [
             'status' => 'restored',
             'message' => 'Access restored. Welcome back!',
+            'slug' => $leadSlug,
         ];
+    }
+
+    private function resolveLeadSlug($lead, $slug = null)
+    {
+        if (!empty($slug)) {
+            return $slug;
+        }
+
+        return $lead->post_slug ?? '';
+    }
+
+    private function saveMissingLeadSlug($lead, $slug = null)
+    {
+        if (empty($slug) || !empty($lead->post_slug) || empty($lead->id)) {
+            return;
+        }
+
+        $this->leadRepository->updatePostSlug((int) $lead->id, $slug);
     }
 
     public function checkIp($ip, $email, $slug = null, $insertSameIp = true)

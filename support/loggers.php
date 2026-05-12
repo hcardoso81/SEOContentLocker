@@ -20,9 +20,12 @@ function seocontentlocker_get_log_path($filename)
     return $base . $filename;
 }
 
-function log_expires($email = '')
+function log_expires($email = '', $slug = '')
 {
-    scl_write_log('expired.log', ['email' => $email]);
+    scl_write_log('expired.log', [
+        'email' => $email,
+        'slug' => $slug,
+    ]);
 }
 
 function log_error($error, $context = '', $email = '')
@@ -43,9 +46,12 @@ function log_suscription($email = '', $ip = '', $country = '')
     ]);
 }
 
-function log_restore($email)
+function log_restore($email, $slug = '')
 {
-    scl_write_log('restore.log', ['email' => $email]);
+    scl_write_log('restore.log', [
+        'email' => $email,
+        'slug' => $slug,
+    ]);
 }
 
 function log_access($email, $slug)
