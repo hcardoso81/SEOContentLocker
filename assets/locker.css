@@ -368,6 +368,53 @@
   font-family: Arial, sans-serif;
 }
 
+.subscription-form-wrapper h2,
+.subscription-form-wrapper .subscription-text {
+  display: none;
+}
+
+.subscription-form-wrapper input[type="email"] {
+  width: 100%;
+  max-width: none;
+  padding: 12px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 15px;
+  text-align: center;
+  background: #ffffff;
+  font-family: "Roboto Condensed", Arial, sans-serif;
+}
+
+.subscription-form-wrapper input[type="email"]:focus {
+  border: 1px solid #4F81BD;
+}
+
+.subscription-form-wrapper .consent-text,
+.subscription-form-wrapper .recaptcha-wrapper,
+.subscription-form-wrapper .recaptcha-error {
+  font-size: 12px;
+  color: #555;
+  font-family: "Roboto Condensed", Arial, sans-serif;
+}
+
+.subscription-form-wrapper .consent-text {
+  max-width: none;
+}
+
+.subscription-form-wrapper button#lead-submit {
+  width: 100%;
+  max-width: none;
+  padding: 14px;
+  background: #4F81BD;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: "Roboto Condensed", Arial, sans-serif;
+}
+
 #form-message-page {
   margin-top: 1rem;
   padding: 10px;

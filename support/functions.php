@@ -1,8 +1,12 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-function locker_component($name)
+function locker_component($name, $vars = [])
 {
+    if (!empty($vars) && is_array($vars)) {
+        extract($vars, EXTR_SKIP);
+    }
+
     include plugin_dir_path(__FILE__) . "../templates/{$name}.php";
 }
 
