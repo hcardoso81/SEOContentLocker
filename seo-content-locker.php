@@ -10,7 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
-define('LOCKER_REPORT_EMAIL', "hernan.f.cardoso@gmail.com");
+define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 
 // Archivos principales
 require_once plugin_dir_path(__FILE__) . 'autoload.php';
