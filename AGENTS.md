@@ -5,8 +5,10 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 ## Resumen funcional
 
 - Shortcode principal: `[lock]...[/lock]` protege secciones de contenido.
+- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con email, sin consentimiento visual ni Google reCAPTCHA.
+- Shortcode de suscripcion completo: `[my_subscription_form_site]` replica el flujo historico con email, consentimiento y Google reCAPTCHA.
 - El plugin inyecta automaticamente un modal de captura en entradas individuales.
-- El frontend valida email, consentimiento y Google reCAPTCHA antes de registrar el lead.
+- El frontend valida email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
 - El email se persiste en `localStorage` con la clave `wpscl_e` para intentar restaurar acceso en visitas futuras.
 - El acceso gratuito expira por fecha (`expires_at`), por defecto a los 15 dias desde el alta.
 - Si una IP ya fue usada por otro lead, el intento se bloquea y se registra en una tabla separada.
@@ -37,7 +39,7 @@ El plugin usa una arquitectura modular cercana a capas:
 1. El usuario hace click en `Continue Reading` y se abre el modal.
 2. `assets/front.js` envia `seocontentlocker_save_lead` a `admin-ajax.php`.
 3. `includes/locker-ajax.php` valida nonce, email, slug e IP.
-4. `LeadRegistrationService::register()` valida reCAPTCHA.
+4. `LeadRegistrationService::register()` valida reCAPTCHA cuando el flujo lo requiere.
 5. `LeadAccessService::checkLead()` verifica si el email ya existe y si el acceso sigue vigente.
 6. `LeadAccessService::checkIp()` bloquea multiples registros desde la misma IP.
 7. Se obtiene el pais por IP y se guarda el lead con `LeadRepository::insert()`.
@@ -139,12 +141,14 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
 
 - Archivo principal: `assets/front.js`.
 - El objeto localizado es `seocontentlocker_ajax`.
+- `assets/front.js` soporta multiples formularios publicos y detecta si un formulario requiere reCAPTCHA mediante `data-recaptcha-required="1"`.
 - Las respuestas esperadas usan `data.status` con valores como:
   - `success`
   - `restored`
   - `expired`
   - `mailchimp_failed`
-- La pagina de suscripcion usa el shortcode `my_subscription_form`.
+- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]` y omite consentimiento visual y reCAPTCHA.
+- La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]` y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
 - La URL de agradecimiento esta hardcodeada en JS como `/thanks-you-newsletter/`.
 
 ## Admin
@@ -160,6 +164,7 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
 
 - Antes de editar, revisar `git status --short`.
 - Mantener cambios acotados al modulo afectado.
+- Cuando un cambio modifique comportamiento, shortcodes, endpoints, servicios, opciones, tablas, flujos de frontend/admin o pasos de verificacion, actualizar este `AGENTS.md` en el mismo trabajo.
 - No reemplazar la arquitectura modular por includes grandes o logica mezclada.
 - Si se agrega una clase nueva, registrar la clase en `autoload.php`.
 - Si se toca un flujo AJAX, verificar nonce, sanitizacion, respuesta JSON y manejo en `assets/front.js`.
