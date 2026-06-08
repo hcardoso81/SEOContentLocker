@@ -10,12 +10,14 @@
         <h2>Subscribe to Our Updates!</h2>
 
         <p class="subscription-text">
-            Enter your email to get full access to our updates.
+            Enter your email and agree to the terms to get full access to our updates.
         </p>
 
-        <form id="my-subscription-form-page" class="locker-public-form" novalidate>
+        <form id="my-subscription-form-site" class="locker-public-form" data-recaptcha-required="1" novalidate>
             <?php
             locker_component('form-email');
+            locker_component('form-consent');
+            locker_component('form-recaptcha');
             locker_component('button-submit', [
                 'submit_label' => __('ACCESS RESEARCH', 'seo-locker'),
             ]);

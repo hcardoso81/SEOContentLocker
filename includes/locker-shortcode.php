@@ -57,3 +57,11 @@ function my_subscription_form_shortcode()
     return ob_get_clean();
 }
 add_shortcode('my_subscription_form', 'my_subscription_form_shortcode');
+
+function my_subscription_form_site_shortcode()
+{
+    ob_start();
+    locker_component('subscription-page-site');
+    return ob_get_clean();
+}
+add_shortcode('my_subscription_form_site', 'my_subscription_form_site_shortcode');

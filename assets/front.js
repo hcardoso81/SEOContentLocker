@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const pageForm = document.getElementById("my-subscription-form-page");
+    const pageForms = document.querySelectorAll("#my-subscription-form-page, #my-subscription-form-site");
     const modalForm = document.getElementById("lead-capture-form");
-    const isPageSubscription = Boolean(pageForm);
+    const isPageSubscription = pageForms.length > 0;
 
     const overlay = document.getElementById("lead-overlay");
     const closeBtn = document.querySelector(".modal-close");
@@ -26,11 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
             emailInput: form.querySelector("#lead-email"),
             consentCheckbox: form.querySelector("#lead-consent"),
             recaptchaError: form.querySelector("#recaptcha-error"),
+            requiresRecaptcha: form.dataset.recaptchaRequired === "1",
+            isPageForm: form.id === "my-subscription-form-page" || form.id === "my-subscription-form-site",
         };
     };
 
     const modalFields = getFields(modalForm);
-    const pageFields = getFields(pageForm);
+    const pageFields = Array.from(pageForms).map(getFields);
 
     const showLoader = (text) => {
         if (!accessLoader) return;
@@ -76,11 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const validateInput = (fields) => {
-        if (!fields?.submitBtn || !fields.emailInput || !fields.consentCheckbox) return;
+        if (!fields?.submitBtn || !fields.emailInput) return;
 
         const email = fields.emailInput.value.trim();
         const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        fields.submitBtn.disabled = !(fields.consentCheckbox.checked && isValidEmail);
+        const hasConsent = !fields.consentCheckbox || fields.consentCheckbox.checked;
+        fields.submitBtn.disabled = !(hasConsent && isValidEmail);
     };
 
     const storeEmail = (email) => {
@@ -137,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         clearRecaptchaError(fields);
         storeEmail(email);
 
-        if (isPageSubscription) {
+        if (fields?.isPageForm) {
             window.location.href = THANK_YOU_URL;
             return;
         }
@@ -202,6 +205,10 @@ document.addEventListener("DOMContentLoaded", () => {
         setSubmitState(fields, true, LOADING_SUBMIT_TEXT);
 
         try {
+            const recaptchaResponse = fields.requiresRecaptcha && typeof grecaptcha !== "undefined"
+                ? grecaptcha.getResponse()
+                : "";
+
             const response = await fetch(seocontentlocker_ajax.url, {
                 method: "POST",
                 headers: {
@@ -212,7 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     email,
                     slug: window.location.pathname,
                     nonce: seocontentlocker_ajax.nonce,
-                    "g-recaptcha-response": grecaptcha.getResponse()
+                    source: fields.isPageForm && !fields.requiresRecaptcha ? "subscription_page" : "",
+                    "g-recaptcha-response": recaptchaResponse
                 }),
             });
 
@@ -244,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    [modalFields, pageFields].forEach((fields) => {
+    [modalFields, ...pageFields].forEach((fields) => {
         if (!fields?.form) return;
 
         if (fields.consentCheckbox) {

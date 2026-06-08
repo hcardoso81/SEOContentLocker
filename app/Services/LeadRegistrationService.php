@@ -21,9 +21,11 @@ class LeadRegistrationService
         $this->accessService = $accessService ?: new LeadAccessService($this->leadRepository);
     }
 
-    public function register($email, $slug, $ip, $recaptchaToken)
+    public function register($email, $slug, $ip, $recaptchaToken, $validateRecaptcha = true)
     {
-        $this->recaptchaService->validate($recaptchaToken);
+        if ($validateRecaptcha) {
+            $this->recaptchaService->validate($recaptchaToken);
+        }
 
         $leadResult = $this->accessService->checkLead($email, $slug);
         if ($leadResult) {

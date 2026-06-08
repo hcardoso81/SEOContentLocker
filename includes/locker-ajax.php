@@ -50,11 +50,13 @@ function seocontentlocker_save_lead()
     $email = validateEmail($_POST['email'] ?? '', true);
     $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
     $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
+    $source = sanitize_text_field($_POST['source'] ?? '');
+    $validateRecaptcha = $source !== 'subscription_page';
     $ip = get_ip();
 
     try {
         $service = new \SeoContentLocker\Services\LeadRegistrationService();
-        $result = $service->register($email, $slug, $ip, $recaptcha);
+        $result = $service->register($email, $slug, $ip, $recaptcha, $validateRecaptcha);
 
         wp_send_json_success($result);
         wp_die();
