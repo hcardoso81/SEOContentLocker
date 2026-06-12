@@ -143,8 +143,10 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
 ## Frontend
 
 - Archivo principal: `assets/front.js`.
+- Los assets se versionan con `SEO_CONTENT_LOCKER_VERSION`; subir esa constante cuando se necesite romper cache de JS/CSS.
 - El objeto localizado es `seocontentlocker_ajax`; incluye `isPost` para limitar la restauracion automatica a entradas.
 - `assets/front.js` soporta multiples formularios publicos y detecta si un formulario requiere reCAPTCHA mediante `data-recaptcha-required="1"`.
+- Cuando hay reCAPTCHA, `assets/front.js` debe tomar el token desde el formulario enviado para evitar mezclar widgets entre modal y formularios de pagina.
 - Las respuestas esperadas usan `data.status` con valores como:
   - `success`
   - `restored`

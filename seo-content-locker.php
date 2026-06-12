@@ -2,7 +2,7 @@
 /*
 Plugin Name: SEO Content Locker
 Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante email. Incluye verificación de estado, restauración de acceso, protección anti-spam (frontend/backend), integración con reCAPTCHA y registro de eventos (logs).
-Version: 1.1
+Version: 1.1.1
 Author: Hernan Cardoso
 Author URI: https://www.linkedin.com/in/cardosohernan/
 */
@@ -10,6 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
+define('SEO_CONTENT_LOCKER_VERSION', '1.1.1');
 define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 
 // Archivos principales

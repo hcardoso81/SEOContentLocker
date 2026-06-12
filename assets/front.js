@@ -79,6 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
         fields.submitBtn.textContent = text;
     };
 
+    const getRecaptchaResponse = (fields) => {
+        if (!fields?.requiresRecaptcha) return "";
+
+        const responseInput = fields.form.querySelector('[name="g-recaptcha-response"]');
+        if (responseInput?.value) {
+            return responseInput.value;
+        }
+
+        return typeof grecaptcha !== "undefined" ? grecaptcha.getResponse() : "";
+    };
+
     const validateInput = (fields) => {
         if (!fields?.submitBtn || !fields.emailInput) return;
 
@@ -207,9 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setSubmitState(fields, true, LOADING_SUBMIT_TEXT);
 
         try {
-            const recaptchaResponse = fields.requiresRecaptcha && typeof grecaptcha !== "undefined"
-                ? grecaptcha.getResponse()
-                : "";
+            const recaptchaResponse = getRecaptchaResponse(fields);
 
             const response = await fetch(seocontentlocker_ajax.url, {
                 method: "POST",

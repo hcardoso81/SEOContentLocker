@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) exit;
         If you have already registered before, please enter your email again to recover your session.
       </p>
 
-      <form id="lead-capture-form" class="locker-public-form" novalidate>
+      <form id="lead-capture-form" class="locker-public-form" data-recaptcha-required="1" novalidate>
         <?php
         locker_component('form-email');
         locker_component('form-consent');

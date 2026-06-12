@@ -10,6 +10,7 @@ function seo_locker_frontend_assets()
 
     $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
     $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
+    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.1';
 
     $css_file = $plugin_dir . 'locker.css';
 
@@ -20,7 +21,7 @@ function seo_locker_frontend_assets()
             'seo-locker-css',
             $plugin_url . 'locker.css',
             [],
-            filemtime($css_file)
+            $asset_version
         );
     }
 
@@ -30,7 +31,7 @@ function seo_locker_frontend_assets()
             'seocontentlocker-front',
             $plugin_url . 'front.js',
             ['jquery'],
-            filemtime($js_file_front),
+            $asset_version,
             true
         );
     }
@@ -61,6 +62,7 @@ function seo_locker_admin_assets($hook_suffix)
 {
     $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
     $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
+    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.1';
 
     if (
         $hook_suffix !== 'toplevel_page_' . SLUG &&
@@ -71,11 +73,11 @@ function seo_locker_admin_assets($hook_suffix)
     $js_file  = $plugin_dir . 'admin-locker.js';
 
     if (file_exists($css_file)) {
-        wp_enqueue_style('seo-locker-admin-css', $plugin_url . 'admin-locker.css', [], filemtime($css_file));
+        wp_enqueue_style('seo-locker-admin-css', $plugin_url . 'admin-locker.css', [], $asset_version);
     }
 
     if (file_exists($js_file)) {
-        wp_enqueue_script('seo-locker-admin-js', $plugin_url . 'admin-locker.js', ['jquery'], filemtime($js_file), true);
+        wp_enqueue_script('seo-locker-admin-js', $plugin_url . 'admin-locker.js', ['jquery'], $asset_version, true);
     }
 
     wp_localize_script('seo-locker-admin-js', 'seocontentlocker_mailchimp', [
