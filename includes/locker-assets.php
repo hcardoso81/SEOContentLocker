@@ -39,6 +39,7 @@ function seo_locker_frontend_assets()
     wp_localize_script('seocontentlocker-front', 'seocontentlocker_ajax', [
         'url'   => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('seocontentlocker_nonce'),
+        'isPost' => is_singular('post'),
     ]);
 
     wp_enqueue_script(

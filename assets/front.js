@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const trialExpiredNotices = document.querySelectorAll(".trial-expired-notice");
     const subscriptionNotices = document.querySelectorAll(".confirm-email-notice");
     const lockedContents = document.querySelectorAll(".content-locked");
+    const hasLockedExperience = Boolean(modalForm) || readMoreButtons.length > 0 || lockedContents.length > 0;
+    const isPost = typeof seocontentlocker_ajax !== "undefined" && Boolean(seocontentlocker_ajax.isPost);
 
     const THANK_YOU_URL = "/thanks-you-newsletter/";
     const EMAIL_STORAGE_KEY = "wpscl_e";
@@ -291,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    if (!isPageSubscription) {
+    if (isPost && !isPageSubscription && hasLockedExperience) {
         const email = localStorage.getItem(EMAIL_STORAGE_KEY);
         if (email) {
             verifyLeadStatus(email);

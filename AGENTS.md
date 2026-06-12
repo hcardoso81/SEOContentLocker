@@ -11,7 +11,8 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 - El frontend valida email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
 - El email se persiste en `localStorage` con la clave `wpscl_e` para intentar restaurar acceso en visitas futuras.
 - El acceso gratuito expira por fecha (`expires_at`), por defecto a los 15 dias desde el alta.
-- Si una IP ya fue usada por otro lead, el intento se bloquea y se registra en una tabla separada.
+- Si una IP ya fue usada por otro lead, el submit real se bloquea y se registra en una tabla separada.
+- El email definido en `LOCKER_REPORT_EMAIL` salta la restriccion de IP duplicada para permitir pruebas/admin del flujo de suscripcion.
 - La geolocalizacion basica se obtiene por IP.
 - Mailchimp API v3 se usa para crear o actualizar contactos y aplicar tags.
 - El admin de WordPress permite listar leads, buscar, ordenar, paginar, exportar CSV, expirar, editar fecha de expiracion y eliminar registros.
@@ -50,8 +51,10 @@ El plugin usa una arquitectura modular cercana a capas:
 ## Flujo de restauracion de acceso
 
 - En posts, `assets/front.js` lee `localStorage.wpscl_e`.
-- Si hay email guardado, llama al AJAX `seocontentlocker_check_lead_status`.
+- Si hay email guardado y la pagina tiene modal, boton o contenido bloqueado, llama al AJAX `seocontentlocker_check_lead_status`.
 - `LeadAccessService::checkStatus()` decide si restaurar, expirar o bloquear por IP.
+- Las comprobaciones automaticas de estado son silenciosas: no disparan emails administrativos de restauracion, expiracion o IP duplicada.
+- Los emails administrativos de restauracion (`lead_restored`) solo deben dispararse para entradas (`post`), nunca para pages como la pagina de gracias.
 - Si el acceso esta activo, el contenido bloqueado se muestra sin pedir registro nuevamente.
 
 ## Base de datos
@@ -140,7 +143,7 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
 ## Frontend
 
 - Archivo principal: `assets/front.js`.
-- El objeto localizado es `seocontentlocker_ajax`.
+- El objeto localizado es `seocontentlocker_ajax`; incluye `isPost` para limitar la restauracion automatica a entradas.
 - `assets/front.js` soporta multiples formularios publicos y detecta si un formulario requiere reCAPTCHA mediante `data-recaptcha-required="1"`.
 - Las respuestas esperadas usan `data.status` con valores como:
   - `success`

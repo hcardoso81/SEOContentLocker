@@ -21,7 +21,7 @@ class LeadAccessService
 
     public function checkStatus($email, $slug, $ip)
     {
-        $leadResult = $this->checkLead($email, $slug, true);
+        $leadResult = $this->checkLead($email, $slug, true, false);
         if ($leadResult) {
             return $leadResult;
         }
@@ -37,7 +37,7 @@ class LeadAccessService
         ];
     }
 
-    public function checkLead($email, $slug = null, $isStatusCheck = false)
+    public function checkLead($email, $slug = null, $isStatusCheck = false, $notify = true)
     {
         $lead = $this->leadRepository->findByEmail($email);
         $now = new DateTime();
@@ -53,13 +53,15 @@ class LeadAccessService
         if ($now > $expireAt) {
             log_expires($email, $leadSlug);
 
-            seocontentlocker_dispatch_event(
-                Events::LEAD_EXPIRED,
-                [
-                    'email' => $email,
-                    'slug'  => $leadSlug,
-                ]
-            );
+            if ($notify) {
+                seocontentlocker_dispatch_event(
+                    Events::LEAD_EXPIRED,
+                    [
+                        'email' => $email,
+                        'slug'  => $leadSlug,
+                    ]
+                );
+            }
 
             return [
                 'status' => 'expired',
@@ -71,13 +73,15 @@ class LeadAccessService
         if ($isStatusCheck || !$slug) {
             log_restore($email, $leadSlug);
 
-            seocontentlocker_dispatch_event(
-                Events::LEAD_RESTORED,
-                [
-                    'email' => $email,
-                    'slug'  => $leadSlug,
-                ]
-            );
+            if ($notify && $this->shouldNotifyRestore($leadSlug)) {
+                seocontentlocker_dispatch_event(
+                    Events::LEAD_RESTORED,
+                    [
+                        'email' => $email,
+                        'slug'  => $leadSlug,
+                    ]
+                );
+            }
         } else {
             log_access($email, $slug);
         }
@@ -107,8 +111,23 @@ class LeadAccessService
         $this->leadRepository->updatePostSlug((int) $lead->id, $slug);
     }
 
+    private function shouldNotifyRestore($slug)
+    {
+        if (empty($slug)) {
+            return false;
+        }
+
+        $postId = url_to_postid(home_url('/' . ltrim($slug, '/') . '/'));
+
+        return $postId && get_post_type($postId) === 'post';
+    }
+
     public function checkIp($ip, $email, $slug = null, $insertSameIp = true)
     {
+        if ($this->isReportEmail($email)) {
+            return null;
+        }
+
         $existingIp = $this->leadRepository->findByIp($ip);
 
         if (!$existingIp) {
@@ -122,20 +141,31 @@ class LeadAccessService
             $this->sameIpRepository->insert($ip, $country, $email, $slug);
         }
 
-        seocontentlocker_dispatch_event(
-            Events::SAME_IP_BLOCKED,
-            [
-                'email' => $email,
-                'ip' => $ip,
-                'country' => $country,
-                'existing_email' => $existingIp->email,
-                'slug' => $slug,
-            ]
-        );
+        if ($insertSameIp) {
+            seocontentlocker_dispatch_event(
+                Events::SAME_IP_BLOCKED,
+                [
+                    'email' => $email,
+                    'ip' => $ip,
+                    'country' => $country,
+                    'existing_email' => $existingIp->email,
+                    'slug' => $slug,
+                ]
+            );
+        }
 
         return [
             'status' => 'expired',
             'message' => 'Multiple leads from same IP',
         ];
+    }
+
+    private function isReportEmail($email)
+    {
+        if (!defined('LOCKER_REPORT_EMAIL') || !LOCKER_REPORT_EMAIL) {
+            return false;
+        }
+
+        return strtolower($email) === strtolower(LOCKER_REPORT_EMAIL);
     }
 }
