@@ -72,18 +72,18 @@ class LeadAccessService
 
         if ($isStatusCheck || !$slug) {
             log_restore($email, $leadSlug);
-
-            if ($notify && $this->shouldNotifyRestore($leadSlug)) {
-                seocontentlocker_dispatch_event(
-                    Events::LEAD_RESTORED,
-                    [
-                        'email' => $email,
-                        'slug'  => $leadSlug,
-                    ]
-                );
-            }
         } else {
             log_access($email, $slug);
+        }
+
+        if ($notify && $this->shouldNotifyRestore($leadSlug)) {
+            seocontentlocker_dispatch_event(
+                Events::LEAD_RESTORED,
+                [
+                    'email' => $email,
+                    'slug'  => $leadSlug,
+                ]
+            );
         }
 
         return [

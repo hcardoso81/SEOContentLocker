@@ -10,7 +10,7 @@ function seo_locker_frontend_assets()
 
     $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
     $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
-    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.1';
+    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.2';
 
     $css_file = $plugin_dir . 'locker.css';
 
@@ -62,7 +62,7 @@ function seo_locker_admin_assets($hook_suffix)
 {
     $plugin_dir  = plugin_dir_path(__DIR__) . 'assets/';
     $plugin_url  = plugin_dir_url(__DIR__) . 'assets/';
-    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.1';
+    $asset_version = defined('SEO_CONTENT_LOCKER_VERSION') ? SEO_CONTENT_LOCKER_VERSION : '1.1.2';
 
     if (
         $hook_suffix !== 'toplevel_page_' . SLUG &&

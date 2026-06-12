@@ -55,6 +55,7 @@ El plugin usa una arquitectura modular cercana a capas:
 - `LeadAccessService::checkStatus()` decide si restaurar, expirar o bloquear por IP.
 - Las comprobaciones automaticas de estado son silenciosas: no disparan emails administrativos de restauracion, expiracion o IP duplicada.
 - Los emails administrativos de restauracion (`lead_restored`) solo deben dispararse para entradas (`post`), nunca para pages como la pagina de gracias.
+- El submit real de un formulario con un lead activo existente debe poder disparar `lead_restored`; las comprobaciones automaticas de estado siguen siendo silenciosas.
 - Si el acceso esta activo, el contenido bloqueado se muestra sin pedir registro nuevamente.
 
 ## Base de datos
