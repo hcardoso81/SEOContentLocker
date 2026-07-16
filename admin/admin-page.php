@@ -123,7 +123,18 @@ function seo_locker_render_same_ip_page()
     $table = new \SeoContentLocker\Admin\SameIpTable();
     $table->prepare_items();
 
+    if (isset($_GET['deleted']) && $_GET['deleted'] == 1) {
+        echo '<div class="notice notice-success is-dismissible"><p>Registro eliminado correctamente.</p></div>';
+    }
+
+    if (isset($_GET['bulk_deleted']) && $_GET['bulk_deleted'] == 1) {
+        echo '<div class="notice notice-success is-dismissible"><p>Registros seleccionados eliminados correctamente.</p></div>';
+    }
+
     echo '<div class="wrap"><h1>Leads Same IP</h1>';
+    echo '<form method="post">';
+    wp_nonce_field('bulk-same-ip');
     $table->display();
+    echo '</form>';
     echo '</div>';
 }

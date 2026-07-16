@@ -27,9 +27,11 @@ function seocontentlocker_build_redirect_params($success_param)
 
 add_action('admin_post_seocontentlocker_expire_lead', 'seocontentlocker_expire_lead_handler');
 add_action('admin_post_seocontentlocker_delete_lead', 'seocontentlocker_delete_lead_handler');
+add_action('admin_post_seocontentlocker_delete_same_ip', 'seocontentlocker_delete_same_ip_handler');
 add_action('admin_post_seocontentlocker_update_expire_date', 'seocontentlocker_update_expire_date_handler');
 add_action('admin_post_seocontentlocker_export_csv', 'seocontentlocker_export_csv_handler');
 add_action('load-toplevel_page_' . SLUG, 'seocontentlocker_handle_bulk_actions');
+add_action('admin_init', 'seocontentlocker_handle_same_ip_bulk_actions');
 
 function seocontentlocker_expire_lead_handler()
 {
@@ -55,6 +57,23 @@ function seocontentlocker_delete_lead_handler()
     seocontentlocker_build_redirect_params('deleted');
 }
 
+function seocontentlocker_delete_same_ip_handler()
+{
+    verify_permission('manage_options');
+
+    $id = intval($_GET['id'] ?? 0);
+    check_admin_referer('delete_same_ip_' . $id);
+
+    $repository = new \SeoContentLocker\Repositories\SameIpRepository();
+    $repository->delete($id);
+
+    wp_redirect(add_query_arg([
+        'page' => SLUG . '_same_ip',
+        'deleted' => 1,
+    ], admin_url('admin.php')));
+    exit;
+}
+
 function seocontentlocker_handle_bulk_actions()
 {
     verify_permission('manage_options');
@@ -68,6 +87,32 @@ function seocontentlocker_handle_bulk_actions()
         $repository->bulkDelete($ids);
         seocontentlocker_build_redirect_params('bulk_deleted');
     }
+}
+
+function seocontentlocker_handle_same_ip_bulk_actions()
+{
+    if (!is_admin() || (($_REQUEST['page'] ?? '') !== SLUG . '_same_ip')) {
+        return;
+    }
+
+    $action = $_REQUEST['action'] ?? ($_REQUEST['action2'] ?? '');
+
+    if ($action !== 'bulk_delete_same_ip') {
+        return;
+    }
+
+    verify_permission('manage_options');
+    check_admin_referer('bulk-same-ip');
+
+    $ids = array_map('intval', $_REQUEST['lead_same_ip'] ?? []);
+    $repository = new \SeoContentLocker\Repositories\SameIpRepository();
+    $repository->bulkDelete($ids);
+
+    wp_redirect(add_query_arg([
+        'page' => SLUG . '_same_ip',
+        'bulk_deleted' => 1,
+    ], admin_url('admin.php')));
+    exit;
 }
 
 function seocontentlocker_update_expire_date_handler()

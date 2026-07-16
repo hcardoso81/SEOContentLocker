@@ -42,4 +42,32 @@ class SameIpRepository
             )
         );
     }
+
+    public function delete($id)
+    {
+        global $wpdb;
+
+        return $wpdb->delete(
+            $this->tableName(),
+            ['id' => $id],
+            ['%d']
+        );
+    }
+
+    public function bulkDelete($ids)
+    {
+        if (empty($ids)) {
+            return 0;
+        }
+
+        global $wpdb;
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+
+        return $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$this->tableName()} WHERE id IN ($placeholders)",
+                ...$ids
+            )
+        );
+    }
 }

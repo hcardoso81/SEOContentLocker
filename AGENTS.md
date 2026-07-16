@@ -17,6 +17,7 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 - La geolocalizacion basica se obtiene por IP.
 - Mailchimp API v3 se usa para crear o actualizar contactos y aplicar tags.
 - El admin de WordPress permite listar leads, buscar, ordenar, paginar, exportar CSV, expirar, editar fecha de expiracion y eliminar registros.
+- El admin tambien permite eliminar registros individuales o seleccionados de la tabla de intentos por IP duplicada.
 - Tambien hay pantallas de configuracion para Mailchimp y reCAPTCHA.
 - Los eventos importantes generan logs persistentes y notificaciones por email.
 

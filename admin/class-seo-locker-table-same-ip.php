@@ -67,12 +67,36 @@ class SameIpTable extends \WP_List_Table
             : '-';
     }
 
+    public function column_email($item)
+    {
+        $delete_url = wp_nonce_url(
+            admin_url("admin-post.php?action=seocontentlocker_delete_same_ip&id={$item->id}"),
+            'delete_same_ip_' . $item->id
+        );
+
+        $actions = [
+            'delete' => sprintf(
+                '<a href="%s" style="color:red;" onclick="return confirm(\'¿Seguro que quieres eliminar este registro?\')">Eliminar</a>',
+                $delete_url
+            ),
+        ];
+
+        return sprintf('%1$s %2$s', esc_html($item->email), $this->row_actions($actions));
+    }
+
     /**
      * Columna primaria
      */
     public function get_primary_column_name()
     {
         return 'email';
+    }
+
+    public function get_bulk_actions()
+    {
+        return [
+            'bulk_delete_same_ip' => 'Eliminar seleccionados',
+        ];
     }
 
     /**
