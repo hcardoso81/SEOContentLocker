@@ -72,6 +72,21 @@ document.addEventListener("DOMContentLoaded", () => {
         fields.recaptchaError.style.display = "block";
     };
 
+    const showSubmissionError = (fields, message) => {
+        if (!fields?.form) return;
+
+        let error = fields.form.querySelector(".locker-form-error");
+        if (!error) {
+            error = document.createElement("p");
+            error.className = "locker-form-error";
+            error.style.color = "#b42318";
+            fields.form.insertBefore(error, fields.form.firstChild);
+        }
+
+        error.textContent = message || "The subscription could not be processed.";
+        error.style.display = "block";
+    };
+
     const setSubmitState = (fields, disabled, text) => {
         if (!fields?.submitBtn) return;
 
@@ -230,7 +245,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     email,
                     slug: window.location.pathname,
                     nonce: seocontentlocker_ajax.nonce,
-                    source: fields.isPageForm && !fields.requiresRecaptcha ? "subscription_page" : "",
+                    source: fields.isPageForm
+                        ? (fields.requiresRecaptcha ? "subscription_page_site" : "subscription_page")
+                        : "modal",
                     "g-recaptcha-response": recaptchaResponse
                 }),
             });
@@ -251,6 +268,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.status === "expired") {
                 processExpired(fields, email);
+                return;
+            }
+
+            if (data.status === "same_ip_blocked") {
+                showSubmissionError(fields, data.message);
+                validateInput(fields);
+                fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
                 return;
             }
 

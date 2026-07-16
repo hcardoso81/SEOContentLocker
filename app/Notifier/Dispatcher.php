@@ -59,7 +59,15 @@ class Dispatcher
             case Events::SAME_IP_BLOCKED:
                 $this->notifier->send(
                     '🚫 IP duplicada',
-                    'Multiple leads from same IP detected',
+                    'A different email attempted to register from an IP already assigned to another lead',
+                    $data
+                );
+                break;
+
+            case Events::LEAD_RESTORED_DIFFERENT_IP:
+                $this->notifier->send(
+                    'Valid lead from another IP',
+                    'An existing lead restored access from a different IP address',
                     $data
                 );
                 break;

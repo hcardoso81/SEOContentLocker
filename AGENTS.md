@@ -12,6 +12,7 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 - El email se persiste en `localStorage` con la clave `wpscl_e` para intentar restaurar acceso en visitas futuras.
 - El acceso gratuito expira por fecha (`expires_at`), por defecto a los 15 dias desde el alta.
 - Si una IP ya fue usada por otro lead, el submit real se bloquea y se registra en una tabla separada.
+- Si el email ya existe, puede restaurar el acceso desde otra IP; ese caso se permite y genera una notificacion informativa.
 - El email definido en `LOCKER_REPORT_EMAIL` salta la restriccion de IP duplicada para permitir pruebas/admin del flujo de suscripcion.
 - La geolocalizacion basica se obtiene por IP.
 - Mailchimp API v3 se usa para crear o actualizar contactos y aplicar tags.
@@ -55,7 +56,7 @@ El plugin usa una arquitectura modular cercana a capas:
 - `LeadAccessService::checkStatus()` decide si restaurar, expirar o bloquear por IP.
 - Las comprobaciones automaticas de estado son silenciosas: no disparan emails administrativos de restauracion, expiracion o IP duplicada.
 - Los emails administrativos de restauracion (`lead_restored`) solo deben dispararse para entradas (`post`), nunca para pages como la pagina de gracias.
-- El submit real de un formulario con un lead activo existente debe poder disparar `lead_restored`; las comprobaciones automaticas de estado siguen siendo silenciosas.
+- El submit real de los formularios de suscripcion (`[my_subscription_form]`, `[my_subscription_form_site]` y el modal generado por `[lock]`) puede disparar `lead_restored`; las comprobaciones automaticas de estado siguen siendo silenciosas.
 - Si el acceso esta activo, el contenido bloqueado se muestra sin pedir registro nuevamente.
 
 ## Base de datos

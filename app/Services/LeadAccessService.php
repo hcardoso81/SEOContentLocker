@@ -37,7 +37,7 @@ class LeadAccessService
         ];
     }
 
-    public function checkLead($email, $slug = null, $isStatusCheck = false, $notify = true)
+    public function checkLead($email, $slug = null, $isStatusCheck = false, $notify = true, $ip = null)
     {
         $lead = $this->leadRepository->findByEmail($email);
         $now = new DateTime();
@@ -76,12 +76,33 @@ class LeadAccessService
             log_access($email, $slug);
         }
 
-        if ($notify && $this->shouldNotifyRestore($leadSlug)) {
+        // Las comprobaciones automáticas de estado nunca deben notificar.
+        // La notificación de restauración solo corresponde a un envío real
+        // del formulario sobre una entrada (post), usando el slug actual.
+        if ($notify && !$isStatusCheck && !empty($slug) && $this->shouldNotifyRestore($slug)) {
             seocontentlocker_dispatch_event(
                 Events::LEAD_RESTORED,
                 [
                     'email' => $email,
-                    'slug'  => $leadSlug,
+                    'slug'  => $slug,
+                ]
+            );
+        }
+
+        if (
+            $notify &&
+            !$isStatusCheck &&
+            !empty($ip) &&
+            !empty($lead->ip) &&
+            $lead->ip !== $ip
+        ) {
+            seocontentlocker_dispatch_event(
+                Events::LEAD_RESTORED_DIFFERENT_IP,
+                [
+                    'email' => $email,
+                    'slug' => $slug,
+                    'registered_ip' => $lead->ip,
+                    'current_ip' => $ip,
                 ]
             );
         }
@@ -134,6 +155,11 @@ class LeadAccessService
             return null;
         }
 
+        // El mismo email puede recuperar su acceso desde otra red.
+        if (strtolower($existingIp->email) === strtolower($email)) {
+            return null;
+        }
+
         $country = get_country_from_ip($ip);
 
         if ($insertSameIp) {
@@ -146,17 +172,18 @@ class LeadAccessService
                 Events::SAME_IP_BLOCKED,
                 [
                     'email' => $email,
-                    'ip' => $ip,
+                    'current_ip' => $ip,
                     'country' => $country,
                     'existing_email' => $existingIp->email,
+                    'assigned_ip' => $existingIp->ip,
                     'slug' => $slug,
                 ]
             );
         }
 
         return [
-            'status' => 'expired',
-            'message' => 'Multiple leads from same IP',
+            'status' => 'same_ip_blocked',
+            'message' => 'This IP address is already assigned to another user.',
         ];
     }
 
