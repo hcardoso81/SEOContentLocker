@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasLockedExperience = Boolean(modalForm) || readMoreButtons.length > 0 || lockedContents.length > 0;
     const isPost = typeof seocontentlocker_ajax !== "undefined" && Boolean(seocontentlocker_ajax.isPost);
 
-    const THANK_YOU_URL = "/thanks-you-newsletter/";
+    const THANK_YOU_URL = "/your-intermarketflow-access-is-confirmed/";
     const EMAIL_STORAGE_KEY = "wpscl_e";
     const DEFAULT_SUBMIT_TEXT = "Continue";
     const LOADING_SUBMIT_TEXT = "Loading...";

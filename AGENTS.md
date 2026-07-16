@@ -157,7 +157,7 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
   - `mailchimp_failed`
 - La pagina de suscripcion simple usa el shortcode `[my_subscription_form]` y omite consentimiento visual y reCAPTCHA.
 - La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]` y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
-- La URL de agradecimiento esta hardcodeada en JS como `/thanks-you-newsletter/`.
+- La URL de agradecimiento esta hardcodeada en JS como `/your-intermarketflow-access-is-confirmed/`.
 
 ## Admin
 
