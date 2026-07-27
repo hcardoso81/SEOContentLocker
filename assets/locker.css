@@ -106,8 +106,10 @@
   text-align: center;
 }
 
-/* Input email */
+/* Inputs del formulario */
+.overlay-modal input[type="text"],
 .overlay-modal input[type="email"],
+.subscription-form-wrapper input[type="text"],
 .subscription-form-wrapper input[type="email"] {
   width: 100%;
   max-width: 700px;
@@ -117,9 +119,12 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   box-sizing: border-box;
+  text-align: center;
 }
 
+.overlay-modal input[type="text"]:focus,
 .overlay-modal input[type="email"]:focus,
+.subscription-form-wrapper input[type="text"]:focus,
 .subscription-form-wrapper input[type="email"]:focus {
   outline: none;
   border: 2px solid #4F81BD;
@@ -373,6 +378,7 @@
   display: none;
 }
 
+.subscription-form-wrapper input[type="text"],
 .subscription-form-wrapper input[type="email"] {
   width: 100%;
   max-width: none;
@@ -385,6 +391,7 @@
   font-family: "Roboto Condensed", Arial, sans-serif;
 }
 
+.subscription-form-wrapper input[type="text"]:focus,
 .subscription-form-wrapper input[type="email"]:focus {
   border: 1px solid #4F81BD;
 }
@@ -557,6 +564,7 @@
     margin-bottom: 14px;
   }
 
+  .overlay-modal input[type="text"],
   .overlay-modal input[type="email"] {
     margin-bottom: 12px;
     padding: 9px 10px;

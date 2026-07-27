@@ -40,7 +40,7 @@ class LeadRepository
         );
     }
 
-    public function insert($email, $ip, $country, $slug, $days = 15)
+    public function insert($email, $firstName, $ip, $country, $slug, $days = 15)
     {
         global $wpdb;
 
@@ -51,6 +51,7 @@ class LeadRepository
             $this->tableName(),
             [
                 'email'      => $email,
+                'first_name' => $firstName,
                 'ip'         => $ip,
                 'country'    => $country,
                 'post_slug'  => $slug,
@@ -129,7 +130,8 @@ class LeadRepository
         if (!empty($search)) {
             $like = '%' . $wpdb->esc_like($search) . '%';
             $where .= $wpdb->prepare(
-                " AND (email LIKE %s OR country LIKE %s)",
+                " AND (email LIKE %s OR first_name LIKE %s OR country LIKE %s)",
+                $like,
                 $like,
                 $like
             );
@@ -150,7 +152,8 @@ class LeadRepository
         if (!empty($search)) {
             $like = '%' . $wpdb->esc_like($search) . '%';
             $where .= $wpdb->prepare(
-                " AND (email LIKE %s OR country LIKE %s)",
+                " AND (email LIKE %s OR first_name LIKE %s OR country LIKE %s)",
+                $like,
                 $like,
                 $like
             );
@@ -170,7 +173,7 @@ class LeadRepository
         global $wpdb;
 
         return $wpdb->get_results(
-            "SELECT id, email, ip, country, post_slug, status, created_at, expires_at
+            "SELECT id, first_name, email, ip, country, post_slug, status, created_at, expires_at
              FROM {$this->tableName()}
              ORDER BY created_at DESC"
         );

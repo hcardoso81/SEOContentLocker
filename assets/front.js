@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return {
             form,
             submitBtn: form.querySelector("#lead-submit"),
+            firstNameInput: form.querySelector("#lead-first-name"),
             emailInput: form.querySelector("#lead-email"),
             consentCheckbox: form.querySelector("#lead-consent"),
             recaptchaError: form.querySelector("#recaptcha-error"),
@@ -106,12 +107,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const validateInput = (fields) => {
-        if (!fields?.submitBtn || !fields.emailInput) return;
+        if (!fields?.submitBtn || !fields.emailInput || !fields.firstNameInput) return;
 
+        const firstName = fields.firstNameInput.value.trim();
         const email = fields.emailInput.value.trim();
         const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         const hasConsent = !fields.consentCheckbox || fields.consentCheckbox.checked;
-        fields.submitBtn.disabled = !(hasConsent && isValidEmail);
+        fields.submitBtn.disabled = !(firstName && hasConsent && isValidEmail);
     };
 
     const storeEmail = (email) => {
@@ -221,9 +223,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleSubmit = async (fields, event) => {
         event.preventDefault();
 
-        if (!fields?.emailInput || !fields.submitBtn) return;
+        if (!fields?.firstNameInput || !fields.emailInput || !fields.submitBtn) return;
 
+        const firstName = fields.firstNameInput.value.trim();
         const email = fields.emailInput.value.trim();
+        if (!firstName) {
+            fields.firstNameInput.focus();
+            return;
+        }
+
         if (!email) {
             fields.emailInput.focus();
             return;
@@ -242,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: new URLSearchParams({
                     action: "seocontentlocker_save_lead",
+                    first_name: firstName,
                     email,
                     slug: window.location.pathname,
                     nonce: seocontentlocker_ajax.nonce,
@@ -296,6 +305,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (fields.emailInput) {
             fields.emailInput.addEventListener("input", () => validateInput(fields));
+        }
+
+        if (fields.firstNameInput) {
+            fields.firstNameInput.addEventListener("input", () => validateInput(fields));
         }
 
         fields.form.addEventListener("submit", (event) => handleSubmit(fields, event));

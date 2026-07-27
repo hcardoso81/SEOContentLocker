@@ -49,6 +49,7 @@ class LeadTable extends \WP_List_Table
         return [
             'cb' => '<input type="checkbox" />',
             'email' => 'Email',
+            'first_name' => 'First Name',
             'ip' => 'IP',
             'country' => 'País',
             'post_slug' => 'Slug',

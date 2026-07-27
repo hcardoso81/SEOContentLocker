@@ -1,14 +1,16 @@
 # SEO Content Locker - Contexto para agentes
 
+Version actual del plugin: `1.1.4`.
+
 Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Content Locker**. Su objetivo es bloquear contenido parcial dentro de posts o paginas, capturar leads por email, otorgar acceso temporal gratuito, restaurar sesiones existentes y limitar abusos mediante control por IP, reCAPTCHA, logs y notificaciones.
 
 ## Resumen funcional
 
 - Shortcode principal: `[lock]...[/lock]` protege secciones de contenido.
-- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con email, sin consentimiento visual ni Google reCAPTCHA.
-- Shortcode de suscripcion completo: `[my_subscription_form_site]` replica el flujo historico con email, consentimiento y Google reCAPTCHA.
-- El plugin inyecta automaticamente un modal de captura en entradas individuales.
-- El frontend valida email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
+- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA.
+- Shortcode de suscripcion completo: `[my_subscription_form_site]` registra leads desde pagina con First Name y email, consentimiento y Google reCAPTCHA.
+- El plugin inyecta automaticamente un modal de captura en entradas individuales con First Name y email.
+- El frontend valida First Name y email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
 - El email se persiste en `localStorage` con la clave `wpscl_e` para intentar restaurar acceso en visitas futuras.
 - El acceso gratuito expira por fecha (`expires_at`), por defecto a los 15 dias desde el alta.
 - Si una IP ya fue usada por otro lead, el submit real se bloquea y se registra en una tabla separada.
@@ -40,13 +42,13 @@ El plugin usa una arquitectura modular cercana a capas:
 ## Flujo principal de registro
 
 1. El usuario hace click en `Continue Reading` y se abre el modal.
-2. `assets/front.js` envia `seocontentlocker_save_lead` a `admin-ajax.php`.
-3. `includes/locker-ajax.php` valida nonce, email, slug e IP.
+2. `assets/front.js` envia `seocontentlocker_save_lead` a `admin-ajax.php` con First Name y email.
+3. `includes/locker-ajax.php` valida nonce, First Name, email, slug e IP.
 4. `LeadRegistrationService::register()` valida reCAPTCHA cuando el flujo lo requiere.
 5. `LeadAccessService::checkLead()` verifica si el email ya existe y si el acceso sigue vigente.
 6. `LeadAccessService::checkIp()` bloquea multiples registros desde la misma IP.
 7. Se obtiene el pais por IP y se guarda el lead con `LeadRepository::insert()`.
-8. `MailchimpService::subscribe()` hace `PUT` contra Mailchimp API v3 y luego aplica tags.
+8. `MailchimpService::subscribe()` hace `PUT` contra Mailchimp API v3 con `merge_fields.FNAME` y luego aplica tags.
 9. Se disparan eventos para logs y notificaciones.
 10. El frontend desbloquea contenido, muestra expiracion o informa el estado segun la respuesta.
 
@@ -65,7 +67,7 @@ El plugin usa una arquitectura modular cercana a capas:
 El hook de activacion crea dos tablas personalizadas:
 
 - `{$wpdb->prefix}leads_subscriptions`
-  - Campos principales: `email`, `ip`, `country`, `post_slug`, `status`, `plan`, `created_at`, `expires_at`, `token`.
+  - Campos principales: `first_name`, `email`, `ip`, `country`, `post_slug`, `status`, `plan`, `created_at`, `expires_at`, `token`.
   - Tiene indice unico por `email`.
 - `{$wpdb->prefix}leads_subscriptions_same_ip`
   - Registra intentos bloqueados por IP duplicada.
@@ -77,7 +79,7 @@ Si se cambia el esquema, actualizar las funciones de instalacion en `seo-content
 
 - `LeadRegistrationService`: orquesta validacion de captcha, verificacion de acceso/IP, guardado de lead, Mailchimp y eventos.
 - `LeadAccessService`: centraliza reglas de acceso, expiracion, restauracion y bloqueo por IP.
-- `MailchimpService`: integra con Mailchimp API v3 usando `wp_remote_request`; aplica `SUSCRIPTION_SYSTEM` y tags dinamicos:
+- `MailchimpService`: integra con Mailchimp API v3 usando `wp_remote_request`; envia `first_name` como `merge_fields.FNAME`, y aplica `SUSCRIPTION_SYSTEM` y tags dinamicos:
   - `ARTICLE` para posts.
   - `NEWSLETTER` para pages.
 - `RecaptchaService`: valida el token de Google reCAPTCHA con la secret key guardada en opciones.
@@ -155,8 +157,8 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
   - `restored`
   - `expired`
   - `mailchimp_failed`
-- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]` y omite consentimiento visual y reCAPTCHA.
-- La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]` y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
+- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA.
+- La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
 - La URL de agradecimiento esta hardcodeada en JS como `/your-intermarketflow-access-is-confirmed/`.
 
 ## Admin

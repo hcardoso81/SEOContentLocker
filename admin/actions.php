@@ -165,13 +165,14 @@ function seocontentlocker_export_csv_handler()
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         // Encabezados
-        fputcsv($output, ['ID', 'Email', 'IP', 'País', 'Post Slug', 'Fecha Alta', 'Expira']);
+        fputcsv($output, ['ID', 'Email', 'First Name', 'IP', 'País', 'Post Slug', 'Fecha Alta', 'Expira']);
 
         // Datos
         foreach ($results as $row) {
             fputcsv($output, [
                 $row->id ?? '',
                 $row->email ?? '',
+                $row->first_name ?? '',
                 $row->ip ?? '',
                 $row->country ?? '',
                 $row->post_slug ?? '',

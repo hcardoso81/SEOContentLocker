@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: SEO Content Locker
-Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante email. Incluye verificación de estado, restauración de acceso, protección anti-spam (frontend/backend), integración con reCAPTCHA y registro de eventos (logs).
-Version: 1.1.2
+Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante First Name y email. Incluye verificación de estado, restauración de acceso, protección anti-spam (frontend/backend), integración con reCAPTCHA, sincronización del nombre con Mailchimp y registro de eventos (logs).
+Version: 1.1.4
 Author: Hernan Cardoso
 Author URI: https://www.linkedin.com/in/cardosohernan/
 */
@@ -10,7 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
-define('SEO_CONTENT_LOCKER_VERSION', '1.1.2');
+define('SEO_CONTENT_LOCKER_VERSION', '1.1.4');
 define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 
 // Archivos principales
@@ -36,6 +36,19 @@ require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';
  */
 register_activation_hook(__FILE__, 'seo_locker_install_tables');
 
+add_action('plugins_loaded', 'seo_locker_maybe_upgrade_tables');
+
+function seo_locker_maybe_upgrade_tables() {
+    $db_version = get_option('seo_content_locker_db_version', '0');
+
+    if (version_compare($db_version, '1.1.3', '>=')) {
+        return;
+    }
+
+    seo_locker_install_tables();
+    update_option('seo_content_locker_db_version', '1.1.3');
+}
+
 function seo_locker_install_tables() {
     seo_locker_install();
     seo_locker_create_table_same_IP();
@@ -53,6 +66,7 @@ function seo_locker_install() {
 
     $sql = "CREATE TABLE $table_name (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        first_name VARCHAR(100) NOT NULL DEFAULT '',
         email VARCHAR(255) NOT NULL,
         ip VARCHAR(45) DEFAULT NULL,
         country VARCHAR(100) DEFAULT NULL,

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 class MailchimpService
 {
-    public function subscribe($email, $slug)
+    public function subscribe($email, $firstName, $slug)
     {
         $apiKey = get_option('seocontentlocker_mc_api_key');
         $listId = get_option('seocontentlocker_mc_list_id');
@@ -20,6 +20,9 @@ class MailchimpService
             'email_address' => $email,
             'status_if_new' => 'subscribed',
             'status' => 'subscribed',
+            'merge_fields' => [
+                'FNAME' => $firstName,
+            ],
         ];
 
         $response = wp_remote_request($url, [

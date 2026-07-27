@@ -48,6 +48,10 @@ function seocontentlocker_save_lead()
     validate_nonce('nonce', 'seocontentlocker_nonce', true);
 
     $email = validateEmail($_POST['email'] ?? '', true);
+    $firstName = sanitize_text_field(wp_unslash($_POST['first_name'] ?? ''));
+    if ($firstName === '') {
+        wp_send_json_error(['message' => __('First name is required.', 'seocontentlocker')]);
+    }
     $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
     $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
     $source = sanitize_text_field($_POST['source'] ?? '');
@@ -57,7 +61,7 @@ function seocontentlocker_save_lead()
 
     try {
         $service = new \SeoContentLocker\Services\LeadRegistrationService();
-        $result = $service->register($email, $slug, $ip, $recaptcha, $validateRecaptcha, $notifyRestore);
+        $result = $service->register($email, $firstName, $slug, $ip, $recaptcha, $validateRecaptcha, $notifyRestore);
 
         wp_send_json_success($result);
         wp_die();
