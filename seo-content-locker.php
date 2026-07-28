@@ -10,7 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
-define('SEO_CONTENT_LOCKER_VERSION', '1.1.9');
+define('SEO_CONTENT_LOCKER_VERSION', '1.1.15');
 define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 define('SEO_CONTENT_LOCKER_THANK_YOU_PATH', '/your-intermarketflow-access-is-confirmed/');
 define('SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH', '/thank-you/');

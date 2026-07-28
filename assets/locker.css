@@ -354,7 +354,12 @@
 .subscription-form-wrapper {
   --locker-form-accent: var(--e-global-color-accent, #005A78);
   --locker-form-button-text: #fff;
-  --locker-form-font-family: var(--e-global-typography-text-font-family, "Roboto Condensed", sans-serif);
+  /*
+   * Keep the public page form aligned with the brand font used by the
+   * landing-page content. A page can override this locally with
+   * --locker-page-font-family when it uses a different brand font.
+   */
+  --locker-form-font-family: var(--locker-page-font-family, "Roboto Condensed", sans-serif);
   --locker-form-field-text: #fff;
   --locker-form-placeholder: rgba(255, 255, 255, 0.72);
   --locker-form-field-border: rgba(255, 255, 255, 0.35);
