@@ -71,8 +71,7 @@
   overflow-y: auto;
 }
 
-.overlay-modal h2,
-.subscription-form-wrapper h2 {
+.overlay-modal h2 {
   margin: 0 0 16px;
   font-size: 28px;
   line-height: 1.3;
@@ -81,8 +80,7 @@
   text-align: center;
 }
 
-.locker-copy p,
-.subscription-form-wrapper .subscription-text {
+.locker-copy p {
   margin: 0 0 16px;
   font-size: 16px;
   line-height: 1.6;
@@ -108,9 +106,7 @@
 
 /* Inputs del formulario */
 .overlay-modal input[type="text"],
-.overlay-modal input[type="email"],
-.subscription-form-wrapper input[type="text"],
-.subscription-form-wrapper input[type="email"] {
+.overlay-modal input[type="email"] {
   width: 100%;
   max-width: 700px;
   padding: 10px;
@@ -123,16 +119,13 @@
 }
 
 .overlay-modal input[type="text"]:focus,
-.overlay-modal input[type="email"]:focus,
-.subscription-form-wrapper input[type="text"]:focus,
-.subscription-form-wrapper input[type="email"]:focus {
+.overlay-modal input[type="email"]:focus {
   outline: none;
   border: 2px solid #4F81BD;
 }
 
 /* Consentimiento */
-.overlay-modal .consent-text,
-.subscription-form-wrapper .consent-text {
+.overlay-modal .consent-text {
   display: flex;
   align-items: flex-start;
   width: 100%;
@@ -144,23 +137,20 @@
   text-align: left;
 }
 
-.overlay-modal .consent-text input[type="checkbox"],
-.subscription-form-wrapper .consent-text input[type="checkbox"] {
+.overlay-modal .consent-text input[type="checkbox"] {
   margin-right: 8px;
   margin-top: 4px;
   flex: 0 0 auto;
 }
 
-.overlay-modal .consent-text a,
-.subscription-form-wrapper .consent-text a {
+.overlay-modal .consent-text a {
   color: #4F81BD;
   text-decoration: underline;
   font-weight: bold;
 }
 
 /* Boton submit */
-.overlay-modal button#lead-submit,
-.subscription-form-wrapper button#lead-submit {
+.overlay-modal button#lead-submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -175,13 +165,11 @@
   margin-bottom: 1rem;
 }
 
-.overlay-modal button#lead-submit:hover:enabled,
-.subscription-form-wrapper button#lead-submit:hover:enabled {
+.overlay-modal button#lead-submit:hover:enabled {
   background: #2f5b8a;
 }
 
-.overlay-modal button#lead-submit:disabled,
-.subscription-form-wrapper button#lead-submit:disabled {
+.overlay-modal button#lead-submit:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
@@ -364,13 +352,24 @@
 /**** Form ****/
 
 .subscription-form-wrapper {
-  max-width: 700px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  font-family: Arial, sans-serif;
+  --locker-form-accent: var(--e-global-color-accent, #005A78);
+  --locker-form-button-text: #fff;
+  --locker-form-font-family: var(--e-global-typography-text-font-family, "Roboto Condensed", sans-serif);
+  --locker-form-field-text: #fff;
+  --locker-form-placeholder: rgba(255, 255, 255, 0.72);
+  --locker-form-field-border: rgba(255, 255, 255, 0.35);
+  --locker-form-field-background: rgba(255, 255, 255, 0.04);
+  --locker-form-field-radius: 4px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+
+.subscription-form-wrapper .locker-public-shell-page {
+  padding: 0;
 }
 
 .subscription-form-wrapper h2,
@@ -382,44 +381,95 @@
 .subscription-form-wrapper input[type="email"] {
   width: 100%;
   max-width: none;
-  padding: 12px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  font-size: 15px;
-  text-align: center;
-  background: #ffffff;
-  font-family: "Roboto Condensed", Arial, sans-serif;
+  display: block;
+  box-sizing: border-box;
+  margin: 0 0 1rem;
+  padding: 12px 16px;
+  border: 1px solid var(--locker-form-field-border);
+  border-radius: var(--locker-form-field-radius);
+  background-color: var(--locker-form-field-background);
+  font-family: var(--locker-form-font-family);
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--locker-form-field-text);
+}
+
+.subscription-form-wrapper input[type="text"]::placeholder,
+.subscription-form-wrapper input[type="email"]::placeholder {
+  color: var(--locker-form-placeholder);
+  opacity: 1;
+}
+
+.subscription-form-wrapper input[type="text"]:hover,
+.subscription-form-wrapper input[type="email"]:hover {
+  border-color: var(--locker-form-accent);
 }
 
 .subscription-form-wrapper input[type="text"]:focus,
 .subscription-form-wrapper input[type="email"]:focus {
-  border: 1px solid #4F81BD;
+  border-color: var(--locker-form-accent);
+  outline: none;
+  box-shadow: 0 0 0 1px var(--locker-form-accent);
 }
 
 .subscription-form-wrapper .consent-text,
 .subscription-form-wrapper .recaptcha-wrapper,
 .subscription-form-wrapper .recaptcha-error {
-  font-size: 12px;
-  color: #555;
-  font-family: "Roboto Condensed", Arial, sans-serif;
+  font-family: inherit;
 }
 
 .subscription-form-wrapper .consent-text {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
   max-width: none;
+  margin: 0 0 1.5rem;
+  color: inherit;
+  text-align: left;
+}
+
+.subscription-form-wrapper .consent-text input[type="checkbox"] {
+  flex: 0 0 auto;
+  margin: 0.25em 0.5em 0 0;
+}
+
+.subscription-form-wrapper .consent-text a {
+  color: inherit;
+}
+
+.subscription-form-wrapper .recaptcha-error {
+  color: #d93025;
 }
 
 .subscription-form-wrapper button#lead-submit {
   width: 100%;
   max-width: none;
-  padding: 14px;
-  background: #4F81BD;
-  color: #ffffff;
-  font-weight: bold;
-  border-radius: 4px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: "Roboto Condensed", Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font: inherit;
+  color: var(--locker-form-button-text);
+  background-color: var(--locker-form-accent);
+  font-family: var(--locker-form-font-family);
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.subscription-form-wrapper button#lead-submit:hover:enabled,
+.subscription-form-wrapper button#lead-submit:focus-visible {
+  color: var(--locker-form-button-text);
+  background-color: var(--locker-form-accent);
+  filter: brightness(1.12);
+}
+
+.subscription-form-wrapper button#lead-submit:disabled,
+.subscription-form-wrapper button#lead-submit:disabled:hover {
+  color: var(--locker-form-button-text);
+  background-color: var(--locker-form-accent);
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: none;
+  pointer-events: none;
 }
 
 #form-message-page {
@@ -480,19 +530,16 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  .overlay-modal h2,
-  .subscription-form-wrapper h2 {
+  .overlay-modal h2 {
     font-size: 24px;
   }
 
-  .locker-copy p,
-  .subscription-form-wrapper .subscription-text {
+  .locker-copy p {
     font-size: 15px;
     margin-bottom: 12px;
   }
 
-  .overlay-modal .consent-text,
-  .subscription-form-wrapper .consent-text {
+  .overlay-modal .consent-text {
     font-size: 13px;
     margin-bottom: 1rem;
   }
@@ -543,7 +590,7 @@
     padding: 0 8px;
   }
 
-  .locker-public-shell {
+  .locker-public-shell-modal {
     padding: 14px 12px 16px;
   }
 

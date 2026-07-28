@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasLockedExperience = Boolean(modalForm) || readMoreButtons.length > 0 || lockedContents.length > 0;
     const isPost = typeof seocontentlocker_ajax !== "undefined" && Boolean(seocontentlocker_ajax.isPost);
 
-    const THANK_YOU_URL = "/your-intermarketflow-access-is-confirmed/";
+    const THANK_YOU_URL = seocontentlocker_ajax.thankYouUrl;
+    const LANDING_THANK_YOU_URL = seocontentlocker_ajax.landingThankYouUrl;
     const EMAIL_STORAGE_KEY = "wpscl_e";
     const DEFAULT_SUBMIT_TEXT = "Continue";
     const LOADING_SUBMIT_TEXT = "Loading...";
@@ -173,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (fields?.isPageForm) {
             window.location.href = fields.isLanding
-                ? "/thank-you/"
+                ? LANDING_THANK_YOU_URL
                 : THANK_YOU_URL;
             return;
         }

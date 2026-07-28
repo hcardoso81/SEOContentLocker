@@ -1,6 +1,6 @@
 # SEO Content Locker - Contexto para agentes
 
-Version actual del plugin: `1.1.5`.
+Version actual del plugin: `1.1.9`.
 
 Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Content Locker**. Su objetivo es bloquear contenido parcial dentro de posts o paginas, capturar leads por email, otorgar acceso temporal gratuito, restaurar sesiones existentes y limitar abusos mediante control por IP, reCAPTCHA, logs y notificaciones.
 
@@ -161,7 +161,8 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
   - `mailchimp_failed`
 - La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA. El atributo `landing` cambia la redireccion a `/thank-you/` y la etiqueta de Mailchimp a `LANDING`; sin atributo usa la redireccion existente y `HOME`.
 - La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
-- La URL de agradecimiento existente esta hardcodeada en JS como `/your-intermarketflow-access-is-confirmed/`; los formularios simples con `landing` usan `/thank-you/`.
+- Los formularios de pagina generados por ambos shortcodes toman la tipografia desde `--e-global-typography-text-font-family` y el acento desde `--e-global-color-accent`, con fallbacks del manual de marca. Los campos mantienen contraste sobre fondos oscuros mediante variables locales para texto, placeholder, borde, fondo y radio (`--locker-form-field-*`), que Elementor puede sobrescribir desde el contenedor. El modal generado por `[lock]` mantiene sus estilos visuales propios.
+- Las rutas de agradecimiento se definen en `seo-content-locker.php` mediante `SEO_CONTENT_LOCKER_THANK_YOU_PATH` y `SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH`. `includes/locker-assets.php` las convierte en URLs del sitio mediante `home_url()` y las expone al frontend; los formularios simples con `landing` usan la segunda ruta.
 
 ## Admin
 
