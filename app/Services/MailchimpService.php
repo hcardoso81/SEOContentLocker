@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 class MailchimpService
 {
-    public function subscribe($email, $firstName, $slug)
+    public function subscribe($email, $firstName, $slug, $originTag = 'HOME')
     {
         $apiKey = get_option('seocontentlocker_mc_api_key');
         $listId = get_option('seocontentlocker_mc_list_id');
@@ -81,6 +81,10 @@ class MailchimpService
         $tags = [
             [
                 'name' => 'SUSCRIPTION_SYSTEM',
+                'status' => 'active',
+            ],
+            [
+                'name' => in_array($originTag, ['HOME', 'LANDING'], true) ? $originTag : 'HOME',
                 'status' => 'active',
             ],
         ];

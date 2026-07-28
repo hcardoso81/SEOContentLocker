@@ -21,7 +21,7 @@ class LeadRegistrationService
         $this->accessService = $accessService ?: new LeadAccessService($this->leadRepository);
     }
 
-    public function register($email, $firstName, $slug, $ip, $recaptchaToken, $validateRecaptcha = true, $notifyRestore = false)
+    public function register($email, $firstName, $slug, $ip, $recaptchaToken, $validateRecaptcha = true, $notifyRestore = false, $isLanding = false)
     {
         if ($validateRecaptcha) {
             $this->recaptchaService->validate($recaptchaToken);
@@ -41,7 +41,7 @@ class LeadRegistrationService
 
         $this->saveLead($email, $firstName, $slug, $ip, $country);
 
-        $mcResponse = $this->mailchimpService->subscribe($email, $firstName, $slug);
+        $mcResponse = $this->mailchimpService->subscribe($email, $firstName, $slug, $isLanding ? 'LANDING' : 'HOME');
 
         if (!$mcResponse['success']) {
             log_error(

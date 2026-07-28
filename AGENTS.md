@@ -1,13 +1,13 @@
 # SEO Content Locker - Contexto para agentes
 
-Version actual del plugin: `1.1.4`.
+Version actual del plugin: `1.1.5`.
 
 Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Content Locker**. Su objetivo es bloquear contenido parcial dentro de posts o paginas, capturar leads por email, otorgar acceso temporal gratuito, restaurar sesiones existentes y limitar abusos mediante control por IP, reCAPTCHA, logs y notificaciones.
 
 ## Resumen funcional
 
 - Shortcode principal: `[lock]...[/lock]` protege secciones de contenido.
-- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA.
+- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA. Acepta el atributo opcional `[my_subscription_form landing]`; ese formulario redirige a `/thank-you/` y aplica la etiqueta `LANDING` en Mailchimp. Sin el atributo redirige a la pagina de agradecimiento actual y aplica `HOME`.
 - Shortcode de suscripcion completo: `[my_subscription_form_site]` registra leads desde pagina con First Name y email, consentimiento y Google reCAPTCHA.
 - El plugin inyecta automaticamente un modal de captura en entradas individuales con First Name y email.
 - El frontend valida First Name y email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
@@ -82,6 +82,8 @@ Si se cambia el esquema, actualizar las funciones de instalacion en `seo-content
 - `MailchimpService`: integra con Mailchimp API v3 usando `wp_remote_request`; envia `first_name` como `merge_fields.FNAME`, y aplica `SUSCRIPTION_SYSTEM` y tags dinamicos:
   - `ARTICLE` para posts.
   - `NEWSLETTER` para pages.
+  - `HOME` cuando el submit no proviene de `[my_subscription_form landing]`.
+  - `LANDING` cuando el submit proviene de `[my_subscription_form landing]`.
 - `RecaptchaService`: valida el token de Google reCAPTCHA con la secret key guardada en opciones.
 - `LeadRepository`: encapsula operaciones sobre leads principales.
 - `SameIpRepository`: encapsula registros de IP duplicada.
@@ -157,9 +159,9 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
   - `restored`
   - `expired`
   - `mailchimp_failed`
-- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA.
+- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA. El atributo `landing` cambia la redireccion a `/thank-you/` y la etiqueta de Mailchimp a `LANDING`; sin atributo usa la redireccion existente y `HOME`.
 - La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
-- La URL de agradecimiento esta hardcodeada en JS como `/your-intermarketflow-access-is-confirmed/`.
+- La URL de agradecimiento existente esta hardcodeada en JS como `/your-intermarketflow-access-is-confirmed/`; los formularios simples con `landing` usan `/thank-you/`.
 
 ## Admin
 

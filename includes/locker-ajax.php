@@ -55,13 +55,14 @@ function seocontentlocker_save_lead()
     $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
     $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
     $source = sanitize_text_field($_POST['source'] ?? '');
+    $isLanding = sanitize_text_field($_POST['landing'] ?? '') === '1';
     $notifyRestore = in_array($source, ['subscription_page', 'subscription_page_site', 'modal'], true);
     $validateRecaptcha = $source !== 'subscription_page';
     $ip = get_ip();
 
     try {
         $service = new \SeoContentLocker\Services\LeadRegistrationService();
-        $result = $service->register($email, $firstName, $slug, $ip, $recaptcha, $validateRecaptcha, $notifyRestore);
+        $result = $service->register($email, $firstName, $slug, $ip, $recaptcha, $validateRecaptcha, $notifyRestore, $isLanding);
 
         wp_send_json_success($result);
         wp_die();

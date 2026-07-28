@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
             consentCheckbox: form.querySelector("#lead-consent"),
             recaptchaError: form.querySelector("#recaptcha-error"),
             requiresRecaptcha: form.dataset.recaptchaRequired === "1",
+            isLanding: form.dataset.landing === "1",
             isPageForm: form.id === "my-subscription-form-page" || form.id === "my-subscription-form-site",
         };
     };
@@ -171,7 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
         storeEmail(email);
 
         if (fields?.isPageForm) {
-            window.location.href = THANK_YOU_URL;
+            window.location.href = fields.isLanding
+                ? "/thank-you/"
+                : THANK_YOU_URL;
             return;
         }
 
@@ -257,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     source: fields.isPageForm
                         ? (fields.requiresRecaptcha ? "subscription_page_site" : "subscription_page")
                         : "modal",
+                    landing: fields.isLanding ? "1" : "0",
                     "g-recaptcha-response": recaptchaResponse
                 }),
             });

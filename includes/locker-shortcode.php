@@ -50,10 +50,18 @@ function seo_locker_inject_overlay($content)
 add_filter('the_content', 'seo_locker_inject_overlay');
 
 
-function my_subscription_form_shortcode()
+function my_subscription_form_shortcode($atts = [])
 {
+    $atts = shortcode_atts([
+        'landing' => false,
+    ], $atts, 'my_subscription_form');
+
+    $is_landing = array_key_exists('landing', $atts) && $atts['landing'] !== false;
+
     ob_start();
-    locker_component('subscription-page');
+    locker_component('subscription-page', [
+        'is_landing' => $is_landing,
+    ]);
     return ob_get_clean();
 }
 add_shortcode('my_subscription_form', 'my_subscription_form_shortcode');

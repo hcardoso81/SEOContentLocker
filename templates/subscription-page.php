@@ -13,7 +13,7 @@
             Enter your email to get full access to our updates.
         </p>
 
-        <form id="my-subscription-form-page" class="locker-public-form" novalidate>
+        <form id="my-subscription-form-page" class="locker-public-form" data-landing="<?php echo $is_landing ? '1' : '0'; ?>" novalidate>
             <?php
             locker_component('form-email');
             locker_component('button-submit', [
