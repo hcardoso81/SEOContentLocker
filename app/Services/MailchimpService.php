@@ -78,14 +78,21 @@ class MailchimpService
         );
 
         $tagsUrl = "https://{$dc}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags";
+        $originTag = in_array($originTag, ['HOME', 'LANDING'], true) ? $originTag : 'HOME';
+        $oppositeOriginTag = $originTag === 'LANDING' ? 'HOME' : 'LANDING';
+
         $tags = [
             [
                 'name' => 'SUSCRIPTION_SYSTEM',
                 'status' => 'active',
             ],
             [
-                'name' => in_array($originTag, ['HOME', 'LANDING'], true) ? $originTag : 'HOME',
+                'name' => $originTag,
                 'status' => 'active',
+            ],
+            [
+                'name' => $oppositeOriginTag,
+                'status' => 'inactive',
             ],
         ];
 

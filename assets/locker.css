@@ -481,10 +481,10 @@
 .subscription-form-wrapper button#lead-submit:disabled:hover {
   color: var(--locker-form-button-text);
   background-color: var(--locker-form-accent);
-  cursor: not-allowed;
-  opacity: 0.45;
+  cursor: pointer;
+  opacity: 1;
   filter: none;
-  box-shadow: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
   pointer-events: none;
 }
 

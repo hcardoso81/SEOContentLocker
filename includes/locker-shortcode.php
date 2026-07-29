@@ -56,7 +56,8 @@ function my_subscription_form_shortcode($atts = [])
         'landing' => false,
     ], $atts, 'my_subscription_form');
 
-    $is_landing = array_key_exists('landing', $atts) && $atts['landing'] !== false;
+    // LANDING se aplica exclusivamente cuando el shortcode declara landing="1".
+    $is_landing = isset($atts['landing']) && (string) $atts['landing'] === '1';
 
     ob_start();
     locker_component('subscription-page', [

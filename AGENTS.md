@@ -7,7 +7,7 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 ## Resumen funcional
 
 - Shortcode principal: `[lock]...[/lock]` protege secciones de contenido.
-- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA. Acepta el atributo opcional `[my_subscription_form landing]`; ese formulario redirige a `/thank-you/` y aplica la etiqueta `LANDING` en Mailchimp. Sin el atributo redirige a la pagina de agradecimiento actual y aplica `HOME`.
+- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA. Acepta el atributo opcional `[my_subscription_form landing="1"]`; solo ese valor redirige a `/your-intermarketflow-access-is-confirmed/` y aplica la etiqueta `LANDING` en Mailchimp. Sin el atributo, o con cualquier otro valor, redirige a `/thank-you/` y aplica `HOME`.
 - Shortcode de suscripcion completo: `[my_subscription_form_site]` registra leads desde pagina con First Name y email, consentimiento y Google reCAPTCHA.
 - El plugin inyecta automaticamente un modal de captura en entradas individuales con First Name y email.
 - El frontend valida First Name y email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
@@ -82,8 +82,8 @@ Si se cambia el esquema, actualizar las funciones de instalacion en `seo-content
 - `MailchimpService`: integra con Mailchimp API v3 usando `wp_remote_request`; envia `first_name` como `merge_fields.FNAME`, y aplica `SUSCRIPTION_SYSTEM` y tags dinamicos:
   - `ARTICLE` para posts.
   - `NEWSLETTER` para pages.
-  - `HOME` cuando el submit no proviene de `[my_subscription_form landing]`.
-  - `LANDING` cuando el submit proviene de `[my_subscription_form landing]`.
+  - `HOME` cuando el submit no proviene de `[my_subscription_form landing="1"]`; al aplicar `HOME`, se desactiva `LANDING` en el contacto.
+  - `LANDING` únicamente cuando el submit proviene de `[my_subscription_form landing="1"]`; al aplicar `LANDING`, se desactiva `HOME` en el contacto.
 - `RecaptchaService`: valida el token de Google reCAPTCHA con la secret key guardada en opciones.
 - `LeadRepository`: encapsula operaciones sobre leads principales.
 - `SameIpRepository`: encapsula registros de IP duplicada.
@@ -159,10 +159,11 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
   - `restored`
   - `expired`
   - `mailchimp_failed`
-- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA. El atributo `landing` cambia la redireccion a `/thank-you/` y la etiqueta de Mailchimp a `LANDING`; sin atributo usa la redireccion existente y `HOME`.
+- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA. Solo el atributo exacto `landing="1"` cambia la redireccion a `/your-intermarketflow-access-is-confirmed/` y la etiqueta de Mailchimp a `LANDING`; sin atributo o con otro valor redirige a `/thank-you/` y aplica `HOME`.
+- El formulario `[my_subscription_form]` muestra `*` dentro de los placeholders de First name y Email como indicacion visual de campos obligatorios. Su boton mantiene la misma apariencia cuando esta deshabilitado mientras faltan datos.
 - La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
 - Los formularios de pagina generados por ambos shortcodes usan `Roboto Condensed` como tipografia de marca por defecto y permiten una fuente distinta mediante `--locker-page-font-family` en el contenedor de la pagina. El acento se toma desde `--e-global-color-accent`, con fallback del manual de marca. Los campos mantienen contraste sobre fondos oscuros mediante variables locales para texto, placeholder, borde, fondo y radio (`--locker-form-field-*`), que Elementor puede sobrescribir desde el contenedor. El modal generado por `[lock]` mantiene sus estilos visuales propios.
-- Las rutas de agradecimiento se definen en `seo-content-locker.php` mediante `SEO_CONTENT_LOCKER_THANK_YOU_PATH` y `SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH`. `includes/locker-assets.php` las convierte en URLs del sitio mediante `home_url()` y las expone al frontend; los formularios simples con `landing` usan la segunda ruta.
+- Las rutas de agradecimiento se definen en `seo-content-locker.php` mediante `SEO_CONTENT_LOCKER_THANK_YOU_PATH` (`/thank-you/`) y `SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH` (`/your-intermarketflow-access-is-confirmed/`). `includes/locker-assets.php` las convierte en URLs del sitio mediante `home_url()` y las expone al frontend; los formularios simples con `landing="1"` usan la segunda ruta.
 
 ## Admin
 

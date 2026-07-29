@@ -13,9 +13,11 @@
             Enter your email to get full access to our updates.
         </p>
 
-        <form id="my-subscription-form-page" class="locker-public-form" data-landing="<?php echo $is_landing ? '1' : '0'; ?>" novalidate>
+        <form id="my-subscription-form-page" class="locker-public-form locker-public-form-simple" data-landing="<?php echo $is_landing ? '1' : '0'; ?>" novalidate>
             <?php
-            locker_component('form-email');
+            locker_component('form-email', [
+                'show_required_markers' => true,
+            ]);
             locker_component('button-submit', [
                 'submit_label' => __('ACCESS RESEARCH', 'seo-locker'),
             ]);

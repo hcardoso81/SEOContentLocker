@@ -15,6 +15,7 @@ define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 define('SEO_CONTENT_LOCKER_THANK_YOU_PATH', '/your-intermarketflow-access-is-confirmed/');
 define('SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH', '/thank-you/');
 
+
 // Archivos principales
 require_once plugin_dir_path(__FILE__) . 'autoload.php';
 require_once plugin_dir_path(__FILE__) . 'support/loggers.php';
