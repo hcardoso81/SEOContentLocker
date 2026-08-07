@@ -17,7 +17,7 @@ Plugin personalizado de WordPress para bloquear contenido, capturar leads y admi
 
 ## Reporte diario de leads
 
-El plugin registra la tarea `seocontentlocker_day_13_report` para ejecutarse diariamente a las 10:00, usando la zona horaria configurada en WordPress.
+El plugin registra la tarea `seocontentlocker_day_13_report` para ejecutarse diariamente a las 10:00 de Argentina usando `America/Argentina/Buenos_Aires`. Esta configuracion es independiente de la zona horaria general de WordPress, por lo que no es necesario cambiar la configuracion del sitio.
 
 El reporte incluye todos los leads guardados en la tabla, independientemente de si Mailchimp proceso correctamente el contacto. El email contiene una tabla con:
 

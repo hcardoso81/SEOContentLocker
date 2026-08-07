@@ -17,12 +17,15 @@ class Day13LeadReportService
 
     public function sendDailyReport()
     {
-        $timezone = wp_timezone();
+        $timezone = new \DateTimeZone(SEO_CONTENT_LOCKER_REPORT_TIMEZONE);
         $today = new DateTimeImmutable('today', $timezone);
         $start = $today->modify('-13 days');
         $end = $start->modify('+1 day');
         $reportDate = $start->format('Y-m-d');
         $lockKey = 'seocontentlocker_day13_report_' . $reportDate;
+
+        $databaseStart = $start->setTimezone(wp_timezone());
+        $databaseEnd = $end->setTimezone(wp_timezone());
 
         if (get_transient($lockKey)) {
             scl_write_log('day-13-report.log', [
@@ -33,8 +36,8 @@ class Day13LeadReportService
         }
 
         $leads = $this->leadRepository->findCreatedBetween(
-            $start->format('Y-m-d H:i:s'),
-            $end->format('Y-m-d H:i:s')
+            $databaseStart->format('Y-m-d H:i:s'),
+            $databaseEnd->format('Y-m-d H:i:s')
         );
 
         if (empty($leads)) {
@@ -43,6 +46,8 @@ class Day13LeadReportService
                 'report_date' => $reportDate,
                 'from' => $start->format('Y-m-d H:i:s'),
                 'to' => $end->format('Y-m-d H:i:s'),
+                'database_from' => $databaseStart->format('Y-m-d H:i:s'),
+                'database_to' => $databaseEnd->format('Y-m-d H:i:s'),
             ]);
             set_transient($lockKey, true, 2 * DAY_IN_SECONDS);
             return true;
@@ -130,7 +135,7 @@ class Day13LeadReportService
             . '<th style="padding:10px;text-align:left;">Pais</th>'
             . '</tr></thead><tbody>' . $rows . '</tbody></table>'
             . '<p style="font-size:12px;color:#68737d;margin-top:20px;">Ventana consultada: '
-            . esc_html($start->format('d/m/Y H:i:s')) . ' a ' . esc_html($end->format('d/m/Y H:i:s')) . ' (zona horaria de WordPress).</p>'
+            . esc_html($start->format('d/m/Y H:i:s')) . ' a ' . esc_html($end->format('d/m/Y H:i:s')) . ' (zona horaria de Argentina).</p>'
             . '</div>';
     }
 
@@ -159,6 +164,7 @@ class Day13LeadReportService
     private function formatDate($date)
     {
         $parsed = new DateTimeImmutable($date, wp_timezone());
+        $parsed = $parsed->setTimezone(new \DateTimeZone(SEO_CONTENT_LOCKER_REPORT_TIMEZONE));
         return $parsed->format('d/m/Y H:i');
     }
 }

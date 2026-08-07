@@ -1,6 +1,6 @@
 # SEO Content Locker - Contexto para agentes
 
-Version actual del plugin: `1.1.17`.
+Version actual del plugin: `1.1.18`.
 
 Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Content Locker**. Su objetivo es bloquear contenido parcial dentro de posts o paginas, capturar leads por email, otorgar acceso temporal gratuito, restaurar sesiones existentes y limitar abusos mediante control por IP, reCAPTCHA, logs y notificaciones.
 
@@ -22,7 +22,7 @@ Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Con
 - El admin tambien permite eliminar registros individuales o seleccionados de la tabla de intentos por IP duplicada.
 - Tambien hay pantallas de configuracion para Mailchimp y reCAPTCHA.
 - Los eventos importantes generan logs persistentes y notificaciones por email.
-- Un cron diario genera a las 10:00 (zona horaria de WordPress) un reporte con los leads ingresados exactamente 13 días antes. Incluye todos los leads guardados aunque Mailchimp haya fallado y escribe resultados en `logs/day-13-report.log`.
+- Un cron diario genera a las 10:00 de Argentina (`America/Argentina/Buenos_Aires`) un reporte con los leads ingresados exactamente 13 días antes. No modifica la zona horaria general de WordPress. Incluye todos los leads guardados aunque Mailchimp haya fallado y escribe resultados en `logs/day-13-report.log`.
 
 ## Arquitectura
 
