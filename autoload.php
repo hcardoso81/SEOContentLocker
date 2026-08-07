@@ -14,6 +14,7 @@ spl_autoload_register(function ($class) {
         'SeoContentLocker\\Notifier\\Notifier' => 'app/Notifier/Notifier.php',
         'SeoContentLocker\\Notifier\\Events' => 'app/Notifier/Events.php',
         'SeoContentLocker\\Notifier\\Dispatcher' => 'app/Notifier/Dispatcher.php',
+        'SeoContentLocker\\Services\\Day13LeadReportService' => 'app/Services/Day13LeadReportService.php',
     ];
 
     if (!isset($classMap[$class])) {

@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 function scl_write_log($filename, $data)
 {
     $path = seocontentlocker_get_log_path($filename);
-    $line = '[' . date('Y-m-d H:i:s') . '] ' . print_r($data, true) . PHP_EOL;
+    $line = '[' . wp_date('Y-m-d H:i:s') . '] ' . print_r($data, true) . PHP_EOL;
     file_put_contents($path, $line, FILE_APPEND);
 }
 

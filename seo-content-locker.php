@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: SEO Content Locker
-Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante First Name y email. Incluye verificación de estado, restauración de acceso, protección anti-spam (frontend/backend), integración con reCAPTCHA, sincronización del nombre con Mailchimp y registro de eventos (logs).
-Version: 1.1.9
+Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante First Name y email. Incluye restauración de acceso, protección anti-spam, reCAPTCHA, Mailchimp, notificaciones administrativas y reporte diario de leads con 13 días de antigüedad mediante cron del servidor.
+Version: 1.1.17
 Author: Hernan Cardoso
 Author URI: https://www.linkedin.com/in/cardosohernan/
 */
@@ -10,7 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
-define('SEO_CONTENT_LOCKER_VERSION', '1.1.15');
+define('SEO_CONTENT_LOCKER_VERSION', '1.1.17');
 define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 define('SEO_CONTENT_LOCKER_THANK_YOU_PATH', '/your-intermarketflow-access-is-confirmed/');
 define('SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH', '/thank-you/');
@@ -30,6 +30,7 @@ require_once plugin_dir_path(__FILE__) . 'admin/actions.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-shortcode.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-assets.php';
 require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';
+require_once plugin_dir_path(__FILE__) . 'includes/locker-cron.php';
 
 
 /**
@@ -38,8 +39,11 @@ require_once plugin_dir_path(__FILE__) . 'includes/locker-ajax.php';
  * ============================
  */
 register_activation_hook(__FILE__, 'seo_locker_install_tables');
+register_activation_hook(__FILE__, 'seocontentlocker_schedule_day_13_report');
+register_deactivation_hook(__FILE__, 'seocontentlocker_unschedule_day_13_report');
 
 add_action('plugins_loaded', 'seo_locker_maybe_upgrade_tables');
+add_action('plugins_loaded', 'seocontentlocker_schedule_day_13_report');
 
 function seo_locker_maybe_upgrade_tables() {
     $db_version = get_option('seo_content_locker_db_version', '0');

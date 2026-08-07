@@ -44,7 +44,7 @@ class LeadRepository
     {
         global $wpdb;
 
-        $created = new DateTime();
+        $created = new DateTime('now', wp_timezone());
         $expires = (clone $created)->modify("+{$days} days");
 
         return $wpdb->insert(
@@ -70,6 +70,22 @@ class LeadRepository
             ['id' => $id],
             ['%s'],
             ['%d']
+        );
+    }
+
+    public function findCreatedBetween($start, $end)
+    {
+        global $wpdb;
+
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT first_name, email, country, created_at
+                 FROM {$this->tableName()}
+                 WHERE created_at >= %s AND created_at < %s
+                 ORDER BY created_at ASC, id ASC",
+                $start,
+                $end
+            )
         );
     }
 
