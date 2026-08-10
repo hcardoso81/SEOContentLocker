@@ -43,15 +43,19 @@ function seo_locker_frontend_assets()
         'isPost' => is_singular('post'),
         'thankYouUrl' => home_url(SEO_CONTENT_LOCKER_THANK_YOU_PATH),
         'landingThankYouUrl' => home_url(SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH),
+        'recaptchaSiteKey' => get_option('seocontentlocker_recaptcha_v3_site_key', ''),
     ]);
 
-    wp_enqueue_script(
-        'google-recaptcha',
-        'https://www.google.com/recaptcha/api.js',
-        [],
-        null,
-        true
-    );
+    $recaptchaSiteKey = trim((string) get_option('seocontentlocker_recaptcha_v3_site_key', ''));
+    if ($recaptchaSiteKey !== '') {
+        wp_enqueue_script(
+            'google-recaptcha-v3',
+            add_query_arg('render', $recaptchaSiteKey, 'https://www.google.com/recaptcha/api.js'),
+            [],
+            null,
+            true
+        );
+    }
 }
 
 add_action('wp_enqueue_scripts', 'seo_locker_frontend_assets');

@@ -19,6 +19,33 @@ function seocontentlocker_register_recaptcha_settings()
         'seocontentlocker_recaptcha_secret_key',
         ['sanitize_callback' => 'sanitize_text_field']
     );
+
+    register_setting(
+        'seocontentlocker_settings_group',
+        'seocontentlocker_recaptcha_v3_site_key',
+        ['sanitize_callback' => 'sanitize_text_field']
+    );
+
+    register_setting(
+        'seocontentlocker_settings_group',
+        'seocontentlocker_recaptcha_v3_secret_key',
+        ['sanitize_callback' => 'sanitize_text_field']
+    );
+
+    register_setting(
+        'seocontentlocker_settings_group',
+        'seocontentlocker_recaptcha_threshold',
+        ['sanitize_callback' => 'seocontentlocker_sanitize_recaptcha_threshold']
+    );
+}
+
+function seocontentlocker_sanitize_recaptcha_threshold($value)
+{
+    if (!is_numeric($value)) {
+        return 0.5;
+    }
+
+    return (float) max(0, min(1, $value));
 }
 
 add_action('admin_menu', function () {

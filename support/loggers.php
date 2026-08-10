@@ -81,3 +81,22 @@ function log_mailchimp_success($email = '', $status = '', $code = 200)
         'code' => $code,
     ]);
 }
+
+function log_rate_limit($limitType, $formType, $ipHash, $emailHash = '')
+{
+    scl_write_log('rate-limit.log', [
+        'limit_type' => $limitType,
+        'form' => $formType,
+        'ip_hash' => $ipHash,
+        'email_hash' => $emailHash,
+    ]);
+}
+
+function log_rate_limit_storage_failure($operation, $limitType)
+{
+    scl_write_log('rate-limit.log', [
+        'event' => 'storage_failure',
+        'operation' => $operation,
+        'limit_type' => $limitType,
+    ]);
+}

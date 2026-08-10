@@ -6,10 +6,11 @@ Plugin personalizado de WordPress para bloquear contenido, capturar leads y admi
 
 - Shortcode `[lock]...[/lock]` para proteger contenido.
 - Formularios de suscripcion con First Name y email.
-- Validacion de email, consentimiento y Google reCAPTCHA segun el formulario.
+- Validacion de email, consentimiento cuando corresponde y Google reCAPTCHA v3 en todos los formularios publicos.
 - Restauracion de accesos existentes mediante email.
 - Acceso gratuito con expiracion configurable.
 - Control de registros repetidos por IP.
+- Rate limiting separado por IP/formulario, IP global y email.
 - Sincronizacion de leads y etiquetas con Mailchimp.
 - Panel administrativo con busqueda, exportacion CSV, expiracion y eliminacion.
 - Logs de suscripciones, accesos, errores y notificaciones.

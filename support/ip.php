@@ -11,11 +11,31 @@ function get_country_from_ip($ip) {
 
 function get_ip()
 {
-    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'] as $key) {
-        if (!empty($_SERVER[$key])) {
-            return sanitize_text_field(explode(',', $_SERVER[$key])[0]);
+    $remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+    if (!filter_var($remoteAddress, FILTER_VALIDATE_IP)) {
+        return '';
+    }
+
+    $trustedProxies = defined('SEO_CONTENT_LOCKER_TRUSTED_PROXY_IPS')
+        ? constant('SEO_CONTENT_LOCKER_TRUSTED_PROXY_IPS')
+        : [];
+
+    if (!is_array($trustedProxies) || !in_array($remoteAddress, $trustedProxies, true)) {
+        return $remoteAddress;
+    }
+
+    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR'] as $key) {
+        if (empty($_SERVER[$key])) {
+            continue;
+        }
+
+        foreach (explode(',', $_SERVER[$key]) as $candidate) {
+            $candidate = trim($candidate);
+            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
         }
     }
 
-    return '';
+    return $remoteAddress;
 }

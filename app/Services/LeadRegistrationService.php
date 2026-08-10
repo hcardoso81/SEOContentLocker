@@ -8,25 +8,19 @@ if (!defined('ABSPATH')) exit;
 
 class LeadRegistrationService
 {
-    private $recaptchaService;
     private $mailchimpService;
     private $leadRepository;
     private $accessService;
 
-    public function __construct($recaptchaService = null, $mailchimpService = null, $leadRepository = null, $accessService = null)
+    public function __construct($mailchimpService = null, $leadRepository = null, $accessService = null)
     {
-        $this->recaptchaService = $recaptchaService ?: new RecaptchaService();
         $this->mailchimpService = $mailchimpService ?: new MailchimpService();
         $this->leadRepository = $leadRepository ?: new LeadRepository();
         $this->accessService = $accessService ?: new LeadAccessService($this->leadRepository);
     }
 
-    public function register($email, $firstName, $slug, $ip, $recaptchaToken, $validateRecaptcha = true, $notifyRestore = false, $isLanding = false)
+    public function register($email, $firstName, $slug, $ip, $notifyRestore = false, $isLanding = false)
     {
-        if ($validateRecaptcha) {
-            $this->recaptchaService->validate($recaptchaToken);
-        }
-
         $leadResult = $this->accessService->checkLead($email, $slug, false, $notifyRestore, $ip);
         if ($leadResult) {
             return $leadResult;

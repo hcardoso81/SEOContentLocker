@@ -2,7 +2,7 @@
 /*
 Plugin Name: SEO Content Locker
 Description: Sistema SEO-friendly para bloquear contenido y capturar leads mediante First Name y email. Incluye restauración de acceso, protección anti-spam, reCAPTCHA, Mailchimp, notificaciones administrativas y reporte diario de leads con 13 días de antigüedad mediante cron del servidor.
-Version: 1.1.18
+Version: 1.1.21
 Author: Hernan Cardoso
 Author URI: https://www.linkedin.com/in/cardosohernan/
 */
@@ -10,7 +10,7 @@ Author URI: https://www.linkedin.com/in/cardosohernan/
 if (!defined('ABSPATH')) exit;
 
 define('SLUG', 'seo-locker');
-define('SEO_CONTENT_LOCKER_VERSION', '1.1.18');
+define('SEO_CONTENT_LOCKER_VERSION', '1.1.21');
 define('LOCKER_REPORT_EMAIL', "martingalachedetoro@gmail.com");
 define('SEO_CONTENT_LOCKER_REPORT_TIMEZONE', 'America/Argentina/Buenos_Aires');
 define('SEO_CONTENT_LOCKER_THANK_YOU_PATH', '/your-intermarketflow-access-is-confirmed/');

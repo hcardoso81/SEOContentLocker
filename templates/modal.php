@@ -21,8 +21,11 @@ if (!defined('ABSPATH')) exit;
         If you have already registered before, please enter your email again to recover your session.
       </p>
 
-      <form id="lead-capture-form" class="locker-public-form" data-recaptcha-required="1" novalidate>
+      <form id="lead-capture-form" class="locker-public-form" data-recaptcha-required="1" data-recaptcha-action="locker_modal_submit" novalidate>
         <?php
+        locker_component('form-antibot', [
+          'form_type' => \SeoContentLocker\Services\AntiBotProtectionService::FORM_MODAL,
+        ]);
         locker_component('form-email');
         locker_component('form-consent');
         locker_component('form-recaptcha');

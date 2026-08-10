@@ -29,8 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
             firstNameInput: form.querySelector("#lead-first-name"),
             emailInput: form.querySelector("#lead-email"),
             consentCheckbox: form.querySelector("#lead-consent"),
+            honeypotInput: form.querySelector('[name="locker_website"]'),
+            formTokenInput: form.querySelector('[name="locker_form_token"]'),
             recaptchaError: form.querySelector("#recaptcha-error"),
             requiresRecaptcha: form.dataset.recaptchaRequired === "1",
+            recaptchaAction: form.dataset.recaptchaAction || "",
             isLanding: form.dataset.landing === "1",
             isPageForm: form.id === "my-subscription-form-page" || form.id === "my-subscription-form-site",
         };
@@ -97,15 +100,16 @@ document.addEventListener("DOMContentLoaded", () => {
         fields.submitBtn.textContent = text;
     };
 
-    const getRecaptchaResponse = (fields) => {
+    const getRecaptchaToken = async (fields) => {
         if (!fields?.requiresRecaptcha) return "";
 
-        const responseInput = fields.form.querySelector('[name="g-recaptcha-response"]');
-        if (responseInput?.value) {
-            return responseInput.value;
+        const siteKey = seocontentlocker_ajax.recaptchaSiteKey;
+        if (!siteKey || typeof grecaptcha === "undefined" || !fields.recaptchaAction) {
+            return "";
         }
 
-        return typeof grecaptcha !== "undefined" ? grecaptcha.getResponse() : "";
+        await new Promise((resolve) => grecaptcha.ready(resolve));
+        return grecaptcha.execute(siteKey, { action: fields.recaptchaAction });
     };
 
     const validateInput = (fields) => {
@@ -245,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setSubmitState(fields, true, LOADING_SUBMIT_TEXT);
 
         try {
-            const recaptchaResponse = getRecaptchaResponse(fields);
+            const recaptchaResponse = await getRecaptchaToken(fields);
 
             const response = await fetch(seocontentlocker_ajax.url, {
                 method: "POST",
@@ -258,22 +262,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     email,
                     slug: window.location.pathname,
                     nonce: seocontentlocker_ajax.nonce,
-                    source: fields.isPageForm
-                        ? (fields.requiresRecaptcha ? "subscription_page_site" : "subscription_page")
-                        : "modal",
-                    landing: fields.isLanding ? "1" : "0",
+                    locker_form_token: fields.formTokenInput?.value || "",
+                    locker_website: fields.honeypotInput?.value || "",
+                    consent: fields.consentCheckbox?.checked ? "1" : "0",
                     "g-recaptcha-response": recaptchaResponse
                 }),
             });
 
             const { data } = await response.json();
-
-            if (data?.message === "Captcha missing") {
-                showRecaptchaError(fields, "Please complete the reCAPTCHA.");
-                validateInput(fields);
-                fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
-                return;
-            }
 
             if (data.status === "success" || data.status === "restored") {
                 processSuccess(fields, email);
@@ -286,6 +282,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (data.status === "same_ip_blocked") {
+                showSubmissionError(fields, data.message);
+                validateInput(fields);
+                fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;
+                return;
+            }
+
+            if (data?.message) {
                 showSubmissionError(fields, data.message);
                 validateInput(fields);
                 fields.submitBtn.textContent = DEFAULT_SUBMIT_TEXT;

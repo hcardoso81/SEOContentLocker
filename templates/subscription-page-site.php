@@ -13,8 +13,11 @@
             Enter your email and agree to the terms to get full access to our updates.
         </p>
 
-        <form id="my-subscription-form-site" class="locker-public-form" data-recaptcha-required="1" novalidate>
+        <form id="my-subscription-form-site" class="locker-public-form" data-recaptcha-required="1" data-recaptcha-action="subscription_site_submit" novalidate>
             <?php
+            locker_component('form-antibot', [
+                'form_type' => \SeoContentLocker\Services\AntiBotProtectionService::FORM_SITE,
+            ]);
             locker_component('form-email');
             locker_component('form-consent');
             locker_component('form-recaptcha');

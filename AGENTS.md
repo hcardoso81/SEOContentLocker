@@ -1,16 +1,16 @@
 # SEO Content Locker - Contexto para agentes
 
-Version actual del plugin: `1.1.18`.
+Version actual del plugin: `1.1.21`.
 
 Este repositorio contiene un plugin personalizado de WordPress llamado **SEO Content Locker**. Su objetivo es bloquear contenido parcial dentro de posts o paginas, capturar leads por email, otorgar acceso temporal gratuito, restaurar sesiones existentes y limitar abusos mediante control por IP, reCAPTCHA, logs y notificaciones.
 
 ## Resumen funcional
 
 - Shortcode principal: `[lock]...[/lock]` protege secciones de contenido.
-- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, sin consentimiento visual ni Google reCAPTCHA. Acepta el atributo opcional `[my_subscription_form landing="1"]`; solo ese valor redirige a `/your-intermarketflow-access-is-confirmed/` y aplica la etiqueta `LANDING` en Mailchimp. Sin el atributo, o con cualquier otro valor, redirige a `/thank-you/` y aplica `HOME`.
-- Shortcode de suscripcion completo: `[my_subscription_form_site]` registra leads desde pagina con First Name y email, consentimiento y Google reCAPTCHA.
+- Shortcode de suscripcion simple: `[my_subscription_form]` registra leads desde pagina con First Name y email, reCAPTCHA v3 y sin consentimiento visual. Acepta el atributo opcional `[my_subscription_form landing="1"]`; solo ese valor redirige a `/your-intermarketflow-access-is-confirmed/` y aplica la etiqueta `LANDING` en Mailchimp. Sin el atributo, o con cualquier otro valor, redirige a `/thank-you/` y aplica `HOME`.
+- Shortcode de suscripcion completo: `[my_subscription_form_site]` registra leads desde pagina con First Name y email, consentimiento y Google reCAPTCHA v3.
 - El plugin inyecta automaticamente un modal de captura en entradas individuales con First Name y email.
-- El frontend valida First Name y email en todos los formularios publicos; consentimiento y Google reCAPTCHA solo cuando el formulario lo requiere.
+- El frontend valida First Name y email en todos los formularios publicos; consentimiento solo cuando el formulario lo requiere y reCAPTCHA v3 en los tres formularios.
 - El email se persiste en `localStorage` con la clave `wpscl_e` para intentar restaurar acceso en visitas futuras.
 - El acceso gratuito expira por fecha (`expires_at`), por defecto a los 15 dias desde el alta.
 - Si una IP ya fue usada por otro lead, el submit real se bloquea y se registra en una tabla separada.
@@ -45,7 +45,7 @@ El plugin usa una arquitectura modular cercana a capas:
 1. El usuario hace click en `Continue Reading` y se abre el modal.
 2. `assets/front.js` envia `seocontentlocker_save_lead` a `admin-ajax.php` con First Name y email.
 3. `includes/locker-ajax.php` valida nonce, First Name, email, slug e IP.
-4. `LeadRegistrationService::register()` valida reCAPTCHA cuando el flujo lo requiere.
+4. `AntiBotProtectionService` valida el contexto temporal, honeypot, consentimiento, rate limiting y reCAPTCHA v3 cuando el flujo lo requiere.
 5. `LeadAccessService::checkLead()` verifica si el email ya existe y si el acceso sigue vigente.
 6. `LeadAccessService::checkIp()` bloquea multiples registros desde la misma IP.
 7. Se obtiene el pais por IP y se guarda el lead con `LeadRepository::insert()`.
@@ -78,7 +78,10 @@ Si se cambia el esquema, actualizar las funciones de instalacion en `seo-content
 
 ## Servicios clave
 
-- `LeadRegistrationService`: orquesta validacion de captcha, verificacion de acceso/IP, guardado de lead, Mailchimp y eventos.
+- `LeadRegistrationService`: orquesta verificacion de acceso/IP, guardado de lead, Mailchimp y eventos. Las protecciones anti-bot previas al registro se centralizan en `AntiBotProtectionService`.
+- `AntiBotProtectionService`: identifica cada formulario mediante un token firmado por el servidor y centraliza honeypot, consentimiento obligatorio, expiracion del contexto, rate limiting y validacion del reCAPTCHA v3.
+- `RateLimitService`: aplica 5 submits por IP/formulario en 5 minutos, 10 submits por IP en 15 minutos y 3 submits por email en 10 minutos. Usa transients y falla abierto si el storage no responde.
+- El contexto anti-bot firmado expira a los 30 minutos y rechaza envios con menos de 1 segundo desde su generacion. La regla temporal es conservadora y no implementa scoring combinado.
 - `LeadAccessService`: centraliza reglas de acceso, expiracion, restauracion y bloqueo por IP.
 - `MailchimpService`: integra con Mailchimp API v3 usando `wp_remote_request`; envia `first_name` como `merge_fields.FNAME`, y aplica `SUSCRIPTION_SYSTEM` y tags dinamicos:
   - `ARTICLE` para posts.
@@ -121,8 +124,12 @@ Si se cambia el esquema, actualizar las funciones de instalacion en `seo-content
   - `seocontentlocker_mc_account`
   - `seocontentlocker_mc_list_id`
 - reCAPTCHA:
-  - `seocontentlocker_recaptcha_site_key`
-  - `seocontentlocker_recaptcha_secret_key`
+- `seocontentlocker_recaptcha_site_key` y `seocontentlocker_recaptcha_secret_key` se conservan como configuracion legacy del checkbox.
+- `seocontentlocker_recaptcha_v3_site_key`
+- `seocontentlocker_recaptcha_v3_secret_key`
+- `seocontentlocker_recaptcha_threshold` (por defecto `0.5`)
+
+La IP usa `REMOTE_ADDR` por defecto. Para una instalacion detras de Cloudflare o un reverse proxy, se debe definir explicitamente `SEO_CONTENT_LOCKER_TRUSTED_PROXY_IPS` como array de IPs del proxy en `wp-config.php`; solo entonces se aceptan `CF-Connecting-IP` o `X-Forwarded-For`.
 
 ## Logs y notificaciones
 
@@ -138,6 +145,7 @@ Archivos esperados:
 - `mailchimp-success.log`
 - `day-13-report.log`
 - `error.log`
+- `rate-limit.log`
 
 Eventos internos relevantes:
 
@@ -155,15 +163,16 @@ El email de reporte se define con la constante `LOCKER_REPORT_EMAIL` en `seo-con
 - Los assets se versionan con `SEO_CONTENT_LOCKER_VERSION`; subir esa constante cuando se necesite romper cache de JS/CSS.
 - El objeto localizado es `seocontentlocker_ajax`; incluye `isPost` para limitar la restauracion automatica a entradas.
 - `assets/front.js` soporta multiples formularios publicos y detecta si un formulario requiere reCAPTCHA mediante `data-recaptcha-required="1"`.
-- Cuando hay reCAPTCHA, `assets/front.js` debe tomar el token desde el formulario enviado para evitar mezclar widgets entre modal y formularios de pagina.
+- Los tres formularios publicos incluyen el componente reutilizable `form-antibot.php`, con honeypot visualmente oculto y token de contexto firmado. El backend no confia en `source`, `landing` ni en validaciones exclusivas del navegador para decidir las protecciones.
+- Cuando hay reCAPTCHA v3, `assets/front.js` debe generar un token inmediatamente antes del submit. La action esperada se define server-side segun el contexto firmado.
 - Las respuestas esperadas usan `data.status` con valores como:
   - `success`
   - `restored`
   - `expired`
   - `mailchimp_failed`
-- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, y omite consentimiento visual y reCAPTCHA. Solo el atributo exacto `landing="1"` cambia la redireccion a `/your-intermarketflow-access-is-confirmed/` y la etiqueta de Mailchimp a `LANDING`; sin atributo o con otro valor redirige a `/thank-you/` y aplica `HOME`.
+- La pagina de suscripcion simple usa el shortcode `[my_subscription_form]`, solicita First Name y email, aplica reCAPTCHA v3 y omite consentimiento visual. Solo el atributo exacto `landing="1"` cambia la redireccion a `/your-intermarketflow-access-is-confirmed/` y la etiqueta de Mailchimp a `LANDING`; sin atributo o con otro valor redirige a `/thank-you/` y aplica `HOME`.
 - El formulario `[my_subscription_form]` muestra `*` dentro de los placeholders de First name y Email como indicacion visual de campos obligatorios. Su boton mantiene la misma apariencia cuando esta deshabilitado mientras faltan datos.
-- La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA y el comportamiento anterior.
+- La pagina/formulario de sitio completo usa el shortcode `[my_subscription_form_site]`, solicita First Name y email, y mantiene consentimiento, reCAPTCHA v3 y el comportamiento anterior.
 - Los formularios de pagina generados por ambos shortcodes usan `Roboto Condensed` como tipografia de marca por defecto y permiten una fuente distinta mediante `--locker-page-font-family` en el contenedor de la pagina. El acento se toma desde `--e-global-color-accent`, con fallback del manual de marca. Los campos mantienen contraste sobre fondos oscuros mediante variables locales para texto, placeholder, borde, fondo y radio (`--locker-form-field-*`), que Elementor puede sobrescribir desde el contenedor. El modal generado por `[lock]` mantiene sus estilos visuales propios.
 - Las rutas de agradecimiento se definen en `seo-content-locker.php` mediante `SEO_CONTENT_LOCKER_THANK_YOU_PATH` (`/thank-you/`) y `SEO_CONTENT_LOCKER_LANDING_THANK_YOU_PATH` (`/your-intermarketflow-access-is-confirmed/`). `includes/locker-assets.php` las convierte en URLs del sitio mediante `home_url()` y las expone al frontend; los formularios simples con `landing="1"` usan la segunda ruta.
 

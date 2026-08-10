@@ -8,6 +8,8 @@ spl_autoload_register(function ($class) {
         'SeoContentLocker\\Services\\LeadAccessService' => 'app/Services/LeadAccessService.php',
         'SeoContentLocker\\Services\\LeadRegistrationService' => 'app/Services/LeadRegistrationService.php',
         'SeoContentLocker\\Services\\RecaptchaService' => 'app/Services/RecaptchaService.php',
+        'SeoContentLocker\\Services\\AntiBotProtectionService' => 'app/Services/AntiBotProtectionService.php',
+        'SeoContentLocker\\Services\\RateLimitService' => 'app/Services/RateLimitService.php',
         'SeoContentLocker\\Services\\MailchimpService' => 'app/Services/MailchimpService.php',
         'SeoContentLocker\\Admin\\LeadTable' => 'admin/class-seo-locker-table.php',
         'SeoContentLocker\\Admin\\SameIpTable' => 'admin/class-seo-locker-table-same-ip.php',

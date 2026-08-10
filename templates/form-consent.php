@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 
 <label class="consent-text">
-    <input type="checkbox" id="lead-consent" />
+    <input type="checkbox" id="lead-consent" name="consent" value="1" />
     <span>
         I agree to the
         <a href="/terms-of-service" target="_blank">Terms and Conditions</a>,

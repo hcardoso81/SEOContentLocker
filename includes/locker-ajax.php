@@ -52,17 +52,28 @@ function seocontentlocker_save_lead()
     if ($firstName === '') {
         wp_send_json_error(['message' => __('First name is required.', 'seocontentlocker')]);
     }
-    $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
-    $recaptcha = sanitize_text_field($_POST['g-recaptcha-response'] ?? '');
-    $source = sanitize_text_field($_POST['source'] ?? '');
-    $isLanding = sanitize_text_field($_POST['landing'] ?? '') === '1';
-    $notifyRestore = in_array($source, ['subscription_page', 'subscription_page_site', 'modal'], true);
-    $validateRecaptcha = $source !== 'subscription_page';
     $ip = get_ip();
+
+    $antiBotService = new \SeoContentLocker\Services\AntiBotProtectionService();
+    $formContext = $antiBotService->validateFormToken(
+        sanitize_text_field(wp_unslash($_POST['locker_form_token'] ?? ''))
+    );
+    $antiBotService->validate(
+        $formContext,
+        sanitize_text_field(wp_unslash($_POST['locker_website'] ?? '')),
+        sanitize_text_field(wp_unslash($_POST['consent'] ?? '')),
+        sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'] ?? '')),
+        $ip,
+        $email
+    );
+
+    $slug  = seocontentlocker_request_slug($_POST['slug'] ?? '');
+    $isLanding = !empty($formContext['landing']);
+    $notifyRestore = true;
 
     try {
         $service = new \SeoContentLocker\Services\LeadRegistrationService();
-        $result = $service->register($email, $firstName, $slug, $ip, $recaptcha, $validateRecaptcha, $notifyRestore, $isLanding);
+        $result = $service->register($email, $firstName, $slug, $ip, $notifyRestore, $isLanding);
 
         wp_send_json_success($result);
         wp_die();
